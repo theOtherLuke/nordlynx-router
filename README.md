@@ -205,7 +205,7 @@ ENJOY!
 
 ## TIPS
 
-These tips should be helpful for others like me who suffer from imanidiot syndrome flareups 80
+These tips should be helpful for others like me who suffer from imanidiot syndrome flareups
 
 If you can ping the WAN interface on the vpn but not beyond (WAN,internet,etc) from a client on the LAN
 1. open /etc/sysctl.conf and make sure you have enabled net.ipv4.ip_forward=1
