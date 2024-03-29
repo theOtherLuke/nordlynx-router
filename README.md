@@ -142,6 +142,11 @@ Step 5:
 
 Configure iptables rules to allow LAN traffic to use th vpn connection.
 In addition to normal forwarding and nat rules, we need to add a rule to mark LAN connections so nordvpn allows them through the firewall.
+
+Easy way:
+download rules.v4 (above) and place in your /etc/iptables/ directory
+
+Educational way:
 Make sure nord vpn is not connected and killswitch is off before saving your rules:
 $ nordvpn d && nordvpn killswitch off
 
