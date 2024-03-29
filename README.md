@@ -65,7 +65,7 @@ Step 1:
   Allow login with password (unless you want to use keys, which you will need to figure that out yourself. Sorry)
     $ nano /etc/ssh/sshd_config
     
-      Uncomment the line that say PermitLoginWith password and change it to say 'PermitLoginWithPassword yes'
+Uncomment the line that say PermitLoginWith password and change it to say 'PermitLoginWithPassword yes'
   
   Test internet connetivity on host.
 
