@@ -42,14 +42,14 @@ Test
 Enjoy
 
 
-## Instructions
+# Instructions
 
-# What do you need
+## What do you need
   1. HOST - A host machine, vm, or container with at least 1 core, 512M RAM, 8G drive space, and 2 network intefaces.
   2. CLIENT - A client machine for testing. This can be any internet capable device that can be connected to the second network interface on the host.
   3. An internet connection that can be connected to the primary network interface in the host.
 
-# So, here we go:
+## So, here we go:
 
 While conducting your install, test connnectivity at EVERY step. Sometimes this will be on the host. Sometimes this will be on a client. I generlly use ping for most of this, then add a browser to the test toward the end. If at any point you lose internet connectivity, stop and diagnose it then. This will make it easier to track down the issue. I will add some troubleshooting tips I came up with at the end of this writeup.
 
@@ -131,6 +131,8 @@ auto enp6s19
 iface enp6s19 inet static
         address 192.168.123.1/24 # this will be the subnet for your LAN
 
+
+
 Do not configure a gateway. The gateway is configured on WAN through dhcp.
 
 Test internet connetivity on host.
@@ -180,10 +182,11 @@ $ nano /etc/sysctl.conf
 Uncomment 'inet.ipv4.ip_forward=1'
       
 If you want to disable ipv6 add the following to the end of the file:
-# Disabling ipv6 :
+
 net.ipv6.conf.all.disable_ipv6 = 1
 net.ipv6.conf.default.disable_ipv6 = 1
 net.ipv6.conf.lo.disable_ipv6 = 1
+
 
 Save and exit.
 
