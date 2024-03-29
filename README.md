@@ -1,5 +1,5 @@
 # nordlynx-router
-Instructions for creating a NordVPN router on any linux host using the nordlynx protocol
+Instructions for creating a NordVPN router on any NordVPN supported linux distro using the nordlynx protocol.
 
 As with all of my work, ymmv.
 
@@ -51,7 +51,7 @@ Enjoy
 
 # So, here we go:
 
-While conducting your install, test connnectivity at EVERY step. Sometimes this will be on the host. Sometimes this will be on a client. I genearlly use ping for most of this, then switch add a browser to the test toward the end. If at any point you lose internet connectivity, stop and diagnose it then. This will make it easier to track down the issue. I will add somme troubleshooting tips I came up with at the end of this writeup.
+While conducting your install, test connnectivity at EVERY step. Sometimes this will be on the host. Sometimes this will be on a client. I generlly use ping for most of this, then add a browser to the test toward the end. If at any point you lose internet connectivity, stop and diagnose it then. This will make it easier to track down the issue. I will add some troubleshooting tips I came up with at the end of this writeup.
 
 
 Step 1:
