@@ -9,7 +9,7 @@ Can you use a different distro? Probably. I'm sure these steps can be adapted to
 
 Which nordvpn protocols or options can you use? You can use any protocol or option available in the nordvpn app.
 
-I have uploaded a service I created to manage this connection. Follow the readme in the 'monitor-service' folder for instructions.
+I have uploaded a service I created to manage this connection. Follow the readme in the 'monitor-script' folder for instructions.
 
 Although I have uploaded some config files, I encourage you to follow and learn the process for yourself.
 
