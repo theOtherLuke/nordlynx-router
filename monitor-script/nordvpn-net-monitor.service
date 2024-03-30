@@ -1,0 +1,14 @@
+[Unit]
+Description=NordVPN Network Connectivity Monitor
+After=nordvpnd.target
+WantedBy=default.target
+
+[Service]
+ExecStart=/root/check-connectivity.sh
+User=root
+Type=simple
+Restart=on-failure
+ExecStop=pkill check-connectivity.sh
+
+[Install]
+WantedBy=default.target
