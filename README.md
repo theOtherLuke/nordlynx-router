@@ -108,22 +108,26 @@ Cancel the request to open an external link.
     
 Right-click the "Continue" button and copy the link.
     
-Back in the host terminal/ssh, paste the link into this command : ( don't forget to add the double quote around the url )
+Back in the host terminal/ssh, paste the link into this command : (don't forget to add the double quote around the url )
+
 `$ nordvpn login --callback "<link from Continue button>"`
 
 You should receive a message on that you have logged in.
 
 Configure your nordvpn settings:
+
 `$ nordvpn set ...`
 
 A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
 Do not enable killswitch or autoconnect yet
 
 _If you plan to configure over wan using ssh, be sure to whitelist port 22_
-`nordvpn whitelist add port 22`
+
+`$ nordvpn whitelist add port 22`
 
 _...and for security, remove port 22 when you are done_
-`nordvpn whitelist remove port 22`
+
+`$ nordvpn whitelist remove port 22`
 
 Test internet connetivity on host.
 
@@ -131,6 +135,7 @@ Test internet connetivity on host.
 Step 4:
 
 Connect/configure LAN interface:
+
 `$ nano /etc/network/interfaces`
 
 example -
@@ -164,9 +169,11 @@ download rules.v4 (above) and place in your /etc/iptables/ directory
 
 Educational way:
 Make sure nord vpn is not connected and killswitch is off before saving your rules:
+
 `$ nordvpn d && nordvpn killswitch off`
 
 Confirm no nordvpn rules are active:
+
 `$ iptables -L`
 
 Look for entries that say nordvpn
@@ -204,6 +211,7 @@ Test internet connetivity on host.
 Step 7:
 
 Enable ipv4 forwarding:
+
 `$ nano /etc/sysctl.conf`
 
 Uncomment 'inet.ipv4.ip_forward=1'
