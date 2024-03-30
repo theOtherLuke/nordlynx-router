@@ -195,12 +195,15 @@ Test internet connetivity on host.
 Step 6:
 
 Configure DHCP server on the LAN:
+
 `$ nano /etc/dnsmasq.conf`
   
 Uncomment '#interface=' and assign to your LAN interface:
+
 `interface=enp6s19`
 
 Uncomment 'dhcp-range=.....' and adjust to your subnet, range, and lease time:
+
 `dhcp-range=192.168.55.50,192.168.55.100,12h`
 
 Save and exit.
