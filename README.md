@@ -99,7 +99,8 @@ note: the linux without gui login instructions can be found at :
 
 https://support.nordvpn.com/hc/en-us/articles/20226600447633-How-to-log-in-to-NordVPN-on-Linux-devices-without-a-GUI
     
-This command will produce a url to get the key:
+Enter this command to produce a url to get the key:
+
 `$ nordvpn login`
 
 Copy the url and paste it into a browser.
@@ -108,11 +109,11 @@ Cancel the request to open an external link.
     
 Right-click the "Continue" button and copy the link.
     
-Back in the host terminal/ssh, paste the link into this command : (don't forget to add the double quote around the url )
+On the host terminal/ssh, paste the link into this command : (don't forget to add the double quote around the url )
 
 `$ nordvpn login --callback "<link from Continue button>"`
 
-You should receive a message on that you have logged in.
+You should receive a message that you have logged in.
 
 Configure your nordvpn settings:
 
