@@ -9,8 +9,9 @@ Can you use a different distro? Probably. I'm sure these steps can be adapted to
 
 Which nordvpn protocols or options can you use? You can use any protocol or option available in the nordvpn app.
 
+I have uploaded a service I created to manage this connection. Follow the readme in the 'monitor-service' folder for instructions.
 
-At some point I will upload some config files for you to use. For now I encourage you to take this opportunity to learn the process.
+Although I have uploaded some config files, I encourage you to follow and learn the process for yourself.
 
 
 
@@ -56,7 +57,7 @@ Enjoy
 While conducting your install, **test connnectivity at _EVERY_ step**. Sometimes this will be on the host. Sometimes this will be on a client. I generally use ping for most of this, then add a browser to the test toward the end. If at any point you lose internet connectivity, stop and diagnose it at that point. This will make it easier to track down the issue. I will add some troubleshooting tips I came up with at the end of this writeup.
 
 
-Step 1:
+**Step 1:**
 
 Start with a fresh install of Debian 12, fully updated. **For now, only connect the internet facing interface**, which will be referred to as wan. If installing on bare metal, or any other method that would hinder copy/paste functionality, I recommend configuring over ssh so you can copy and paste.
 
@@ -73,7 +74,7 @@ Uncomment the line that say PermitLoginWith password and change it to say 'Permi
 Test internet connetivity on host.
 
 
-Step 2:
+**Step 2:**
 
 Install extra packages:
 ```
@@ -83,7 +84,7 @@ $ sudo apt install iptables-persistent dnsmasq dnsmasq-utils
 Test internet connetivity on host.
 
 
-Step 3:
+**Step 3:**
 
 Install official NordVPN linux app. These are the commands from the official NordVPN website:
 using curl
@@ -133,7 +134,7 @@ _...and for security, remove port 22 when you are done_
 Test internet connetivity on host.
 
 
-Step 4:
+**Step 4:**
 
 Connect/configure LAN interface:
 
@@ -150,7 +151,7 @@ auto enp6s18
 iface enp6s18 inet dhcp
 
 # LAN
-auto enp6s19
+allow-hotplug enp6s19
 iface enp6s19 inet static
         address 192.168.123.1/24 # this will be the subnet for your LAN
 ```
@@ -160,7 +161,7 @@ Do not configure a gateway. The gateway is configured on WAN through dhcp.
 Test internet connetivity on host.
 
 
-Step 5:
+**Step 5:**
 
 Configure iptables rules to allow LAN traffic to use the vpn connection.
 In addition to normal forwarding and nat rules, we need to add a rule to mark LAN connections so nordvpn allows them through the firewall.
@@ -193,7 +194,7 @@ $ iptables-save > /etc/iptables/rules.v4
 Test internet connetivity on host.
 
 
-Step 6:
+**Step 6:**
 
 Configure DHCP server on the LAN:
 
@@ -212,7 +213,7 @@ Save and exit.
 Test internet connetivity on host.
 
 
-Step 7:
+**Step 7:**
 
 Enable ipv4 forwarding:
 
@@ -233,14 +234,15 @@ Save and exit.
 Test internet connetivity on host.
 
 
-Step 8:
+**Step 8:**
 
 Enable killswitch and autoconnect:
 ```
 $ nordvpn set killswitch on
 $ nordvpn set autoconnect on
 ```
-Step 9:
+
+**Step 9:**
 
 If all went well, you are done.
 
