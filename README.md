@@ -86,10 +86,12 @@ Test internet connetivity on host.
 Step 3:
 
 Install official NordVPN linux app. These are the commands from the official NordVPN website:
-using curl - 
+using curl
+
 `$ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)`
 
 using wget - (I prefer this over additionally installing curl)
+
 `$ sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)`
 
 Login to nordvpn:
