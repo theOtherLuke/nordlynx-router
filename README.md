@@ -181,7 +181,7 @@ Look for entries that say nordvpn
 
 Add iptables rules and save:
 ```
-$ # mark all connections fron LAN for acceptance by nordvpn rules, in my case enp6s19
+$ # mark all connections from LAN for acceptance by nordvpn rules, in my case enp6s19
 $ iptables -t mangle -A PREROUTING -i enp6s19 -j CONNMARK --set-mark 0xe1f1 -m comment --comment nordvpn
 $ # basic forwardnig rules, use nordlynx as WAN
 $ iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
