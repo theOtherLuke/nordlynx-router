@@ -118,6 +118,7 @@ Configure your nordvpn settings:
 `$ nordvpn set ...`
 
 A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
+
 Do not enable killswitch or autoconnect yet
 
 _If you plan to configure over wan using ssh, be sure to whitelist port 22_
