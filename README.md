@@ -48,7 +48,7 @@ Enjoy
 # Instructions
 
 ## What do you need?
-  1. HOST - A host machine, vm, or container with at least 1 core, 96M RAM, 1G drive space, and 2 network intefaces. This will become the VPN router.
+  1. HOST - A host machine, vm, or container with at least 1 core, 96M RAM, 1G drive space, and 2 network intefaces for an lxc. *A vm or bare metal may require more. This requires testing.* This will become the VPN router.
   2. CLIENT - A client machine for testing. This can be any internet capable device that can be connected to the second network interface on the host.
   3. An internet connection that can be connected to the primary network interface in the host.
 
