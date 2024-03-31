@@ -152,6 +152,7 @@ iface enp6s18 inet dhcp
 allow-hotplug enp6s19
 iface enp6s19 inet static
         address 192.168.123.1/24 # this will be the subnet for your LAN
+# if installing as an lxc on Proxmox, configure the LAN address here, not on the host.
 ```
 
 Do not configure a gateway. The gateway is configured on WAN through dhcp.
