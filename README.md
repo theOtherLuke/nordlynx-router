@@ -66,11 +66,7 @@ If you want to use ssh to configure NordVPN, configure it on the host:
 if you don't have an ssh server installed (Debian allows you to select it at install):
 `$ apt install openssh-server`
     
-Allow login with password (unless you want to use keys, which you will need to figure that out yourself. Sorry)
-`$ nano /etc/ssh/sshd_config`
 
-Uncomment the line that say PermitLoginWith password and change it to say 'PermitLoginWithPassword yes'
-  
 Test internet connetivity on host.
 
 
