@@ -61,10 +61,10 @@ While conducting your install, **test connnectivity at _EVERY_ step**. Sometimes
 
 Start with a fresh install of Debian 12, fully updated. **For now, only connect the internet facing interface**, which will be referred to as wan. If installing on bare metal, or any other method that would hinder copy/paste functionality, I recommend configuring over ssh so you can copy and paste.
 
-If you want to use ssh to configure NordVPN, configure it on the host:
+Make sure the user you use to set this up is in sudoers.
 
-if you don't have an ssh server installed (Debian allows you to select it at install):
-`$ apt install openssh-server`
+If you want to use ssh to configure, make sure you have an ssh server installed. If you don't have an ssh server installed (Debian allows you to select it at install):
+`$ sudo apt install openssh-server`
     
 
 Test internet connetivity on host.
@@ -85,11 +85,11 @@ Test internet connetivity on host.
 Install official NordVPN linux app. These are the commands from the official NordVPN website:
 using curl
 
-`$ sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)`
+`$ sudo sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)`
 
 using wget - (I prefer this over additionally installing curl)
 
-`$ sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)`
+`$ sudo sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)`
 
 Login to nordvpn:
 note: the linux without gui login instructions can be found at :
@@ -134,7 +134,7 @@ Test internet connetivity on host.
 
 Connect/configure LAN interface:
 
-`$ nano /etc/network/interfaces`
+`$ sudo nano /etc/network/interfaces`
 
 example -
 ```
