@@ -253,7 +253,7 @@ ENJOY!
 
 These tips should be helpful for others like me who suffer from imanidiot syndrome flareups
 
-If you can ping the WAN interface on the vpn but not beyond (WAN,internet,etc) from a client on the LAN:
+If you can ping the LAN interface on the vpn but not beyond (WAN,internet,etc) from a client on the LAN:
 1. open /etc/sysctl.conf and make sure you have umcommented/enabled net.ipv4.ip_forward=1
 I personally have been guilty of going too fast and not reading, which caused me to uncomment the wrong ipv4 line.
 I actually did that while following and editing this.
