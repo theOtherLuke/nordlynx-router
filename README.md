@@ -63,7 +63,8 @@ Start with a fresh install of Debian 12, fully updated. **For now, only connect 
 
 Make sure the user you use to set this up is in sudoers.
 
-If you want to use ssh to configure, make sure you have an ssh server installed. If you don't have an ssh server installed (Debian allows you to select it at install):
+If you want to use ssh to configure, make sure you have an ssh server installed. If you don't have an ssh server installed (Debian allows you to select it at install) you can install one now:
+
 `$ sudo apt install openssh-server`
     
 
