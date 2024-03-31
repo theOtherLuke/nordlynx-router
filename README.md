@@ -230,7 +230,7 @@ net.ipv6.conf.lo.disable_ipv6 = 1
 
 Save and exit.
 
-Test internet connetivity on host.
+Test internet connetivity on host and client.
 
 
 **Step 8:**
@@ -240,6 +240,9 @@ Enable killswitch and autoconnect:
 $ nordvpn set killswitch on
 $ nordvpn set autoconnect on
 ```
+
+At this point you can see how the kill switch works by disconnecting the vpn `$ nordvpn d` and then testing on a client.
+
 
 **Step 9:**
 
@@ -256,8 +259,7 @@ If you can ping the LAN interface on the vpn but not beyond (WAN,internet,etc) f
 1. open /etc/sysctl.conf and make sure you have umcommented/enabled net.ipv4.ip_forward=1
 I personally have been guilty of going too fast and not reading, which caused me to uncomment the wrong ipv4 line.
 I actually did that while following and editing this.
-2. inspect your iptables rules on the vpn lxc/vm/machine
-for NordVPN, you should have 3 rules in your /etc/iptables/rules.v4 file. Double check your work in STEP 5.
+2. inspect your iptables rules on the vpn lxc/vm/machine, you should have 3 rules in your /etc/iptables/rules.v4 file. Double check your work in STEP 5.
 
 If you can ping an ip address but not a domain name:
-1. check your DNS settings on the VPN. Double check your work up to STEP 3.
+1. check your DNS settings. Double check your work up to STEP 3.
