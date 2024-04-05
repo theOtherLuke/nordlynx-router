@@ -185,6 +185,7 @@ $ # mark all connections from LAN for acceptance by nordvpn rules, in my case en
 $ iptables -t mangle -A PREROUTING -i enp6s19 -j CONNMARK --set-mark 0xe1f1 -m comment --comment nordvpn
 $ # basic forwardnig rules, use nordlynx as WAN
 $ iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
+$ iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
 $ iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
 $ # save the rules so they are persistent
 $ iptables-save > /etc/iptables/rules.v4
