@@ -56,7 +56,7 @@ try_reconnect() {
 
 reboot_system() {
         echo "[ "$(date)" ] Rebooting..." | tee -a $logfile
-        touch /reboot.hold # create empty file to indicate system has been rebooted by this script
+        touch /reboot.nord # create empty file to indicate system has been rebooted by this script
         reboot
 }
 
@@ -98,8 +98,8 @@ while :; do
                         if ! check_connection; then # check if connection failed
                                 if ! restart_services; then # check if services restarted
                                         if ! check_connection; then # check if restarting services failed to fix the connection
-                                                if [ -f /reboot.hold ]; then
-                                                        rm  /reboot.hold
+                                                if [ -f /reboot.nord ]; then
+                                                        rm  /reboot.nord
                                                         echo "[ "$(date)" ] Failed to reconnect! Disabling VPN..." | tee -a $logfile
                                                         nordvpn set autoconnect off
                                                         nordvpn set killswitch on
@@ -113,8 +113,8 @@ while :; do
                         fi
                 fi
         fi
-        if [ -f /reboot.hold ]; then
-                rm /reboot.hold
+        if [ -f /reboot.nord ]; then
+                rm /reboot.nord
         fi
         sleep 10
 done
