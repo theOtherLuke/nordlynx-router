@@ -20,5 +20,5 @@ $ systemctl enable --now nordvpn-net-monitor
 
 Check service status
 ```
-$ systemctl status nordvpn-net-moniter.service
+$ systemctl status nordvpn-net-monitor.service
 ```
