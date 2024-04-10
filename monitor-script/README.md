@@ -7,7 +7,7 @@ Place this script in `/root/`
 
 and make it executable(thanks @Kenny606 for the reminder)
 
-`chmod +x check-connection.sh`
+`chmod +x check-connectivity.sh`
 
 The location can be changed. Just make sure to change the location in the .service file to match
 
