@@ -212,6 +212,20 @@ Save and exit.
   
 Test internet connetivity on host.
 
+Check the client to make sure it is being assigned an ip address. Even though you won't have internet access from the client yet, it should be assigned an ip address at this point. 
+
+`$ ip a`
+
+Look for your lan interface and verify it has an address on your subnet(dhcp-range). If not, you may need to whitelist ports 67 and maybe 68 for dnsmasq to work. Thank you @Kenny606 for this tidbit. 
+
+server port:
+
+`$ nordvpn whitelist add port 67`
+
+client port: (if still broken after whitelist port 67)
+
+`$ nordvpn whitelist add port 68`
+
 
 **Step 7:**
 
