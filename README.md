@@ -3,7 +3,7 @@ Instructions for creating a NordVPN router on any NordVPN supported linux distro
 
 As with all of my work, ymmv.
 
-This is the sequence of steps I take to setup my NordVPNP router vm using Debian 12 as the host os. I am working on a bash script to automate as much of this as possible, but that script is not a high priority right now. If/when I complete it, I will add it to this project.
+This is the sequence of steps I take to setup my NordVPN router vm using Debian 12 as the host os. I am working on a bash script to automate as much of this as possible, but that script is not a high priority right now. If/when I complete it, I will add it to this project.
 
 Can you use a different distro? Probably. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed.
 
