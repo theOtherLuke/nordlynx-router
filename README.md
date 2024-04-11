@@ -15,7 +15,7 @@ Although I have uploaded some config files, I encourage you to follow and learn 
 
 
 
-## TL:DR
+## TL;DR
 
 Start with a fresh Debian 12 install
 
@@ -56,6 +56,8 @@ Enjoy
 
 While conducting your install, **test connnectivity at _EVERY_ step**. Sometimes this will be on the host. Sometimes this will be on a client. I generally use ping for most of this, then add a browser to the test toward the end. If at any point you lose internet connectivity, stop and diagnose it at that point. This will make it easier to track down the issue. I will add some troubleshooting tips I came up with at the end of this writeup.
 
+This guide assumes you are eoing this on a clean install with no added iptables rules.
+
 
 **Step 1:**
 
@@ -68,7 +70,7 @@ If you want to use ssh to configure, make sure you have an ssh server installed.
 `$ sudo apt install openssh-server`
     
 
-Test internet connetivity on host.
+Test internet connectivity on host.
 
 
 **Step 2:**
@@ -129,7 +131,7 @@ _...and for security, remove port 22 when you are done_
 
 `$ nordvpn whitelist remove port 22`
 
-Test internet connetivity on host.
+Test internet connectivity on host.
 
 
 **Step 4:**
@@ -157,7 +159,7 @@ iface enp6s19 inet static
 
 Do not configure a gateway. The gateway is configured on WAN through dhcp.
 
-Test internet connetivity on host.
+Test internet connectivity on host.
 
 
 **Step 5:**
@@ -182,16 +184,19 @@ Look for entries that say nordvpn
 Add iptables rules and save:
 ```
 $ # mark all connections from LAN for acceptance by nordvpn rules, in my case enp6s19
+$ # you can set the comment to whatever value you want, or just leave it out
 $ iptables -t mangle -A PREROUTING -i enp6s19 -j CONNMARK --set-mark 0xe1f1 -m comment --comment nordvpn
+$
 $ # basic forwarding rules, use nordlynx as WAN
 $ iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
 $ iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
 $ iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
+
 $ # save the rules so they are persistent
 $ iptables-save > /etc/iptables/rules.v4
 ```
 
-Test internet connetivity on host.
+Test internet connectivity on host.
 
 
 **Step 6:**
@@ -208,9 +213,11 @@ Uncomment 'dhcp-range=.....' and adjust to your subnet, range, and lease time:
 
 `dhcp-range=192.168.55.50,192.168.55.100,12h`
 
+The dhcp-range should match the LAN subnet. 
+
 Save and exit.
   
-Test internet connetivity on host.
+Test internet connectivity on host.
 
 Check the client to make sure it is being assigned an ip address. Even though you won't have internet access from the client yet, it should be assigned an ip address at this point. 
 
@@ -245,7 +252,7 @@ net.ipv6.conf.lo.disable_ipv6 = 1
 
 Save and exit.
 
-Test internet connetivity on host and client.
+Test internet connectivity on host and client.
 
 
 **Step 8:**
