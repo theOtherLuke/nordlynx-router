@@ -1,14 +1,5 @@
-# These rules facilitate using official nordvpn app
+# These rules facilitate routing and using official nordvpn
 # Place this file in /etc/iptables/
-*mangle
-:PREROUTING ACCEPT
-:INPUT ACCEPT
-:FORWARD ACCEPT
-:OUTPUT ACCEPT
-:POSTROUTING ACCEPT
--A PREROUTING -i enp6s19 -m comment --comment nordvpn -j CONNMARK --set-xmark 0xe1f1/0xffffffff
-COMMIT
-
 *filter
 :INPUT ACCEPT
 :FORWARD ACCEPT
