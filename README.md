@@ -162,7 +162,7 @@ Do not configure a gateway. The gateway is configured on WAN through dhcp.
 Test internet connectivity on host.
 
 
-**Step 5:**
+**Step 5:**  *UPDATED April 13, 2024*
 
 Configure iptables rules to allow LAN traffic to use the vpn connection.
 In addition to normal forwarding and nat rules, we need to add a rule to mark LAN connections so nordvpn allows them through the firewall.
@@ -182,11 +182,15 @@ Confirm no nordvpn rules are active:
 Look for entries that say nordvpn
 
 Add iptables rules and save:
+
 ```
-$ # mark all connections from LAN for acceptance by nordvpn rules, in my case enp6s19
+$ # this first rule marks all connections from LAN, in my case enp6s19
+$ # I mistaken thought I needed this rule for traffic to be accepted by nordvpn rules
 $ # you can set the comment to whatever value you want, or just leave it out
+$ # as of my testing on 2024-04-13, YOU DO NOT NEED THIS RULE, see explanation below
 $ iptables -t mangle -A PREROUTING -i enp6s19 -j CONNMARK --set-mark 0xe1f1 -m comment --comment nordvpn
-$
+
+$ # however, you DO need these rules
 $ # basic forwarding rules, use nordlynx as WAN
 $ iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
 $ iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -194,6 +198,23 @@ $ iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
 
 $ # save the rules so they are persistent
 $ iptables-save > /etc/iptables/rules.v4
+```
+
+*****SIDE NOTE:*** 
+TL;DR  - I was wrong about needing the mangle rule, and killswitch is always on
+
+In my efforts to better understand this myself, I have learned that I didn't completely understand how routing works with regards to iptables. It seems I'm wrong about needing the mangle rule that marks connections as FORWARD traffic should never reach the INPUT or OUTPUT tables where nordvpn puts its rules(see diagram below). In fact, the main reason I thought it worked was because of the kill switch feature, which actually does nothing in this setup. The FORWARD traffic is being directed through the nordlynx interface, which ceases to pass traffic any time nordvpn disconnects, regardless of killswitch state. If you want to be able to pass traffic while nordvpn is down, you need to add FORWARD rules using your wan interface instead of the nordlynx interface. I don't have a clue how to do that with iptables without using a script that monitors the nordvpn state and dynamically adds/removes those rules when the vpn goes down/up depending on if killswitch is enabled, if that's even possible. I have no interest in disabling the killswitch, so I'm not planning on writing such a script.
+
+So, with that in mind I did one more setup and have had it testing for the past 13 hours with no issues, without the mangle rule. I believe I mistook this rule as the key to the success of this project when in fact I was probably doing something else wrong on earlier versions of this. Feel free to test it yourself.
+
+```
+In this rough diagram traffic travels clockwise:
+
+                    PREROUTING - INPUT
+                   /     |           \
+NETWORK INTERFACES    FORWARD         LOCALHOST
+                   \     |           /
+                   POSTROUTINNG - OUTPUT
 ```
 
 Test internet connectivity on host.
