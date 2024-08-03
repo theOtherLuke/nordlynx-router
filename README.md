@@ -14,6 +14,9 @@ I have uploaded a service I created to manage this connection. Follow the readme
 Although I have uploaded some config files, I encourage you to follow and learn the process for yourself.
 
 
+If anyone figures out how to use meshnet using this vm/lxc etc., I would welcome the input. Currently, I am using a docker/wireguard instance to connect from outside. I will be working on it myself, but like the install script, that is a low priority.
+
+
 
 ## TL;DR
 
