@@ -17,7 +17,7 @@ ifup enp6s19
 
 check_lan_state() {
         lan_stat=$(ip a | grep enp6s19)
-        if [[ "$lan_status" == *"UP"* ]]; then
+        if [[ "$lan_stat" == *"UP"* ]]; then
                 return $true
         else
                 echo "[ "$(date)" ] LAN is down!" | tee -a $logfile
@@ -95,9 +95,9 @@ while :; do
         if ! check_connectivity; then # if disconnected
                 echo -e "[ "$(date)" ] No connection!\nAttempting to reconnect" | tee -a $logfile
                 if ! try_reconnect; then # if couldn't reconnect
-                        if ! check_connection; then # check if connection failed
+                        if ! check_connectivity; then # check if connection failed
                                 if ! restart_services; then # check if services restarted
-                                        if ! check_connection; then # check if restarting services failed to fix the connection
+                                        if ! check_connectivity; then # check if restarting services failed to fix the connection
                                                 if [ -f /reboot.nord ]; then
                                                         rm  /reboot.nord
                                                         echo "[ "$(date)" ] Failed to reconnect! Disabling VPN..." | tee -a $logfile
