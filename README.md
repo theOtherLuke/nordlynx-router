@@ -270,11 +270,9 @@ Test internet connectivity on host and client.
 
 **Step 8:**
 
-Enable killswitch and autoconnect:
-```
-$ nordvpn set killswitch on
-$ nordvpn set autoconnect on
-```
+Enable autoconnect:
+
+`$ nordvpn set autoconnect on`
 
 At this point you can see how the kill switch works by disconnecting the vpn `$ nordvpn d` and then testing on a client.
 
