@@ -11,7 +11,7 @@ This is the sequence of steps I take to setup my NordVPN router vm using Debian 
 
 Can you use a different distro? *Maybe*, but I haven't had or heard of any success on other distros yet. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed. However, I have only had success using Debian 12. Others have had trouble using Ubuntu (23.10 to be specific). I haven't been able to figure out how to make it work on Ubuntu yet. For that reason, I recommend using Debian 12
 
-Which nordvpn protocols or options can you use? You should be able to use any protocol or option available in the nordvpn app, except killswitch, which is always enabled in this setup.
+Which nordvpn protocols or options can you use? You should be able to use any protocol or option available in the nordvpn app. Killswitch is always enabled for LAN traffic, but can be disabled for WAN.
 
 I have uploaded a service I created to manage this connection. Follow the readme in the 'monitor-script' folder for instructions.
 
@@ -182,7 +182,7 @@ Easy way:
 download rules.v4 (above) and place in your /etc/iptables/ directory
 
 Educational way:
-Make sure nordvpn is not connected and killswitch is off before saving your rules:
+Make sure nordvpn is not connected and killswitch is off before saving your rules. Being connected or having killswitch enabled causes rules to be enabled in iptables that will interfere with the rules for forwarding.
 
 `$ nordvpn d && nordvpn killswitch off`
 
