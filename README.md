@@ -3,13 +3,15 @@ Instructions for creating a NordVPN router on any NordVPN supported linux distro
 
 *UPDATE 2024-08-14: You may have to make adjustments for the particular utility your distro uses for network configuration. Debian uses ifupdown, Ubuntu uses netplan, etc. See Issue #3*
 
-As with all of my work, ymmv.
+As with all of my work, ***YMMV***.
 
 This is the sequence of steps I take to setup my NordVPN router vm using Debian 12 as the host os. I am working on a bash script to automate as much of this as possible, but that script is not a high priority right now. If/when I complete it, I will add it to this project.
 
-Can you use a different distro? Probably. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed.
+*UPDATE 2024-08-17: Distro advice based on feedback and testing to date*
 
-Which nordvpn protocols or options can you use? You can use any protocol or option available in the nordvpn app.
+Can you use a different distro? *Maybe*, but I haven't had or heard of any success on other distros yet. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed. However, I have only had success using Debian 12. Others have had trouble using Ubuntu (23.10 to be specific). I haven't been able to figure out how to make it work on Ubuntu yet. For that reason, I recommend using Debian 12
+
+Which nordvpn protocols or options can you use? You should be able to use any protocol or option available in the nordvpn app, except killswitch, which is always enabled in this setup.
 
 I have uploaded a service I created to manage this connection. Follow the readme in the 'monitor-script' folder for instructions.
 
@@ -124,9 +126,14 @@ Configure your nordvpn settings:
 
 `$ nordvpn set ...`
 
+My testing suggests routing needs to be enabled:
+
+`nordvpn set routing on`
+
+
 A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
 
-Do not enable killswitch or autoconnect yet
+Do not enable autoconnect yet
 
 _If you plan to configure over wan using ssh, be sure to whitelist port 22_
 
@@ -236,7 +243,7 @@ Check the client to make sure it is being assigned an ip address. Even though yo
 
 `$ ip a`
 
-Look for your lan interface and verify it has an address on your subnet(dhcp-range). If not, you may need to whitelist ports 67 and maybe 68 for dnsmasq to work. Thank you @Kenny606 for this tidbit. 
+Look for your lan interface and verify it has an address on your subnet(dhcp-range). If not, you may need to whitelist ports 67 and maybe 68 for dnsmasq to work. I haven't needed this on any of my setups this far though. Thank you @Kenny606 for this tidbit.
 
 server port:
 
@@ -274,7 +281,7 @@ Enable autoconnect:
 
 `$ nordvpn set autoconnect on`
 
-At this point you can see how the kill switch works by disconnecting the vpn `$ nordvpn d` and then testing on a client.
+At this point you can see how the killswitch works by disconnecting the vpn `$ nordvpn d` and then testing on a client.
 
 
 **Step 9:**
@@ -282,6 +289,44 @@ At this point you can see how the kill switch works by disconnecting the vpn `$ 
 If all went well, you are done.
 
 ENJOY!
+
+***UPDATE 2024-08-17:***
+## SIMPLIFIED OUTLINE OF MY SETUP
+
+N100 based SFF with 4 i226 2.5Gb ethernet ports running Proxmox. I have a N5105 based SFF with 6x i225 2.5Gb ports as a backup. Both are configured the same.
+
+Ports are assigned to virtual bridges (vmbr0..n) as follows:
+
+1 port to vmbr1 -
+      This is the WAN connection. The physical port assigned to this bridge is connected directly to my ISP router/modem. Any vm or lxc that needs direct access to my ISP router/modem will connect by assigning vmbr1 as a network port in the vm/lxc. For security, this vmbr has no direct connection to the LAN.
+
+3 ports to vmbr0 -
+      This is the LAN connection. This is connected inside Proxmox to the LAN side of my pfsense vm. ALL of my LAN traffic passes through pfsense. I connect to my wired network and wifi router using the physical ports passed to vmbr0. This is also where my Proxmox management interface connects.
+
+I have 2 lxc containers running nordvpn. One only connects to nordvpn p2p servers. My torrent server only connects through this vpn using pfsense routing rules. The other vpn connects to non-p2p servers and handles the rest of my traffic. The WAN for both of these is assigned to vmbr1, the WAN bridge. The LAN for each is assigned to their respective bridge in Proxmox to facilitate connecting to pfsense. Each one provides its own LAN DHCP with limited address pools on different subnets. For example vpn1 might be 10.1.1.0/24 while vpn2 might be 192.168.77.0/24. I could just do static assignments, but DHCP makes it easier if I need to connect directly to one of them for troubleshooting. 
+
+I use additional virtual bridges to internally "wire" the vpns to pfsense. vmbr2 would be main traffic to WAN1, vmbr3 would be WAN2 for p2p.
+
+pfsense is configured for multi WAN and firewall/NAT rules pass traffic to the proper WAN. pfsense also provides DHCP for the LAN side network.
+
+I also have vmbr1 connected directly to pfsense as a 3rd WAN that only handles traffic to my wireguard instance for access from outside, again routed using firewall/NAT/port-forwarding rules, but that is beyond the scope of this writeup. This is so I can access the LAN even of nord is down. That way I can fix nord related issues from abroad if needed.
+
+```
+   ROUTER/MODEM
+        |
+      vmbr1
+   /    |    \
+vpn1   vpn2   |--WIREGUARD
+  |     |     |
+vmbr2  vmbr3  |
+   \    |    /
+     pfsense
+       |
+     vmbr0
+       |
+      LAN
+```
+
 
 
 ## TIPS
