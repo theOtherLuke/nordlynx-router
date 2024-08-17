@@ -34,13 +34,20 @@ Configure as following
 **Confirm** - Click Finish
 
 Before starting the container, add the second network interface for LAN.
-  Select the container.
-  Go to the Network section.
-  Click Add
-  Name = eth1
-  Bridge = LAN facing vmbr
-  IPv4 = Static
-  Leave all other fields blank
+
+Select the container.
+
+Go to the Network section.
+
+Click Add
+
+Name = eth1
+
+Bridge = LAN facing vmbr
+
+IPv4 = Static
+
+Leave all other fields blank
 
 **Step 4: Configure LAN settings**
 
