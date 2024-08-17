@@ -1,8 +1,6 @@
 
 # Pre-configured LXC container for use in Proxmox
 
-## Acquire Template
-
 **Step 1: Download the template from one of the links below**
 
 https://drive.google.com/file/d/1-1Lp3PjpO49Yb26iDbzvvmC4Wj9mAKtb/view?usp=sharing
