@@ -9,7 +9,7 @@ https://drive.google.com/file/d/1-1Lp3PjpO49Yb26iDbzvvmC4Wj9mAKtb/view?usp=shari
 
 https://file.io/cz6iNgsNWEXm
 
-**Step 2: Upload the image to your Proxmox host as a container template
+**Step 2: Upload the image to your Proxmox host as a container template**
 
 **Step 3: Create a new container using the image and configure**
 
