@@ -1,6 +1,6 @@
-#Ubuntu Configuration Files
+**Ubuntu Configuration Files**
 
-##Included are versions to allow various configurations
+**Included are versions to allow various configurations**
 
 **NETWORK CONNECTION MANAGEMENT**  
 
