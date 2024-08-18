@@ -17,7 +17,7 @@
 country="US"
 logfile="/var/log/nordvpn/monitor.log"
 lan_interface=eth1
-ifup $lan_interface
+ip link set $lan_interface up
 
 check_lan_state() { # returns true if interface is up
         lan_stat=$(ip a | grep $lan_interface)
@@ -46,6 +46,7 @@ check_vpn_status() {
                         fi
                         return $true
                 else
+                        check_account_status
                         if ! try_reconnect; then
                                 return $false
                         fi
@@ -55,7 +56,7 @@ check_vpn_status() {
 
 kill_lan() {
         if ! check_lan_state; then
-                if (( $( ifdown $lan_interface ))); then
+                if (( $( ip link set $lan_interface down ))); then
                         return $true
                 else
                         return $false
@@ -64,7 +65,7 @@ kill_lan() {
 }
 
 revive_lan() {
-        if (( $( ifup $lan_interface ))); then
+        if (( $( ip link set $lan_interface up ))); then
                 return $true
         else
                 return $false
@@ -118,6 +119,7 @@ setup_log() {
 
 setup_log
 
+check_account_status() {
 # initial check to see if nordvpn is logged in
 echo "[ "$(date)" ] Checking account status..." | tee -a $logfile
 nord_account=$(nordvpn account)
@@ -126,7 +128,9 @@ if [[ "$nord_account" == *"not logged in"* ]] ; then
         systemctl stop nordvpn-net-monitor.service
         exit
 fi
+}
 
+check_account_status
 
 echo "[ "$(date)" ] Establishing VPN connection..." | tee -a $logfile
 nordvpn c $country
