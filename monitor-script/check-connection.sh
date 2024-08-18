@@ -3,6 +3,9 @@
 # My script to monitor and recover nordvpn connections
 # It's redundant, but I integrated a function to bring the lan interface up and down
 #
+# UPDATED 2024-08-18
+# assigned LAN interface to a variable to make it easier to update
+#
 # UPDATED 2024-08-03
 # New function in this version: check_vpn_status()
 # My use for this function is to confirm NordVPN is connected to a server in the country I want
@@ -22,15 +25,16 @@
 # 
 # As with the rest of this project, make sure to change the details to match your setup
 #
-# my LAN interface is enp6s19
+# my LAN interface is eth1
 
 country="US"
 logfile="/var/log/nordvpn/monitor.log"
-ifup enp6s19
+lan_interface=eth1
+ifup /dev/$lan_interface
 
 check_lan_state() { # returns true if interface is up
-        lan_stat=$(ip a | grep enp6s19)
-#       if (( -z "$( ip a | grep enp6s19 | grep 'state UP' )")); then
+        lan_stat=$(ip a | grep $lan_interface)
+#       if (( -z "$( ip a | grep $lan_interface | grep 'state UP' )")); then
         if [[ "$lan_stat" == *"UP"* ]]; then
                 return $true
         else
@@ -64,7 +68,7 @@ check_vpn_status() {
 
 kill_lan() {
         if ! check_lan_state; then
-                if (( $( ifdown enp6s19 ))); then
+                if (( $( ifdown /dev/$lan_interface ))); then
                         return $true
                 else
                         return $false
@@ -73,7 +77,7 @@ kill_lan() {
 }
 
 revive_lan() {
-        if (( $( ifup enp6s19 ))); then
+        if (( $( ifup /dev/$lan_interface ))); then
                 return $true
         else
                 return $false
