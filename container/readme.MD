@@ -6,9 +6,7 @@
 
 **Step 1: Download the template from one of the links below**
 
-https://drive.google.com/file/d/1-1Lp3PjpO49Yb26iDbzvvmC4Wj9mAKtb/view?usp=sharing
-
-https://file.io/cz6iNgsNWEXm
+*links temporarily removed pending updates to containers. Sorry for any inconvenience*
 
 **Step 2: Upload the image to your Proxmox host as a container template**
 
