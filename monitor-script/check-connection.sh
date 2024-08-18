@@ -30,7 +30,7 @@
 country="US"
 logfile="/var/log/nordvpn/monitor.log"
 lan_interface=eth1
-ifup /dev/$lan_interface
+ifup $lan_interface
 
 check_lan_state() { # returns true if interface is up
         lan_stat=$(ip a | grep $lan_interface)
@@ -68,7 +68,7 @@ check_vpn_status() {
 
 kill_lan() {
         if ! check_lan_state; then
-                if (( $( ifdown /dev/$lan_interface ))); then
+                if (( $( ifdown $lan_interface ))); then
                         return $true
                 else
                         return $false
@@ -77,7 +77,7 @@ kill_lan() {
 }
 
 revive_lan() {
-        if (( $( ifup /dev/$lan_interface ))); then
+        if (( $( ifup $lan_interface ))); then
                 return $true
         else
                 return $false
