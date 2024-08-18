@@ -134,6 +134,13 @@ setup_log
 echo "[ "$(date)" ] Establishing VPN connection..." | tee -a $logfile
 nordvpn c $country
 
+# initial check to see if nordvpn is logged in
+$nord_account=$(nordvpn account)
+if [[ "$nord_account" == *"not logged in"* ]] ; then
+        systemctl stop nordvpn-net-monitor.service
+        break
+fi
+
 while :; do
         echo "[ "$(date)" ] Checking VPN status..." | tee -a $logfile
         if ! check_vpn_status; then # check vpn status
