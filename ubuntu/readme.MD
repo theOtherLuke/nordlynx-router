@@ -6,7 +6,7 @@
 > This is a *rough* draft of the steps. While it may work, I have not fully tested it yet.
 > These are simply the steps without too much description.
 
-** The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown**
+**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown**
 
 ## Steps
 
