@@ -1,5 +1,5 @@
-# nordlynx-router
-Instructions for creating a NordVPN router on any NordVPN supported linux distro using the nordlynx protocol.
+# nordlynx-router - Debian Edition
+Instructions for creating a NordVPN router on Debian 12 using the nordlynx protocol.
 
 *UPDATE 2024-08-14: You may have to make adjustments for the particular utility your distro uses for network configuration. Debian uses ifupdown, Ubuntu uses netplan, etc. See Issue #3*
 
