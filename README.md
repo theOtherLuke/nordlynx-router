@@ -9,7 +9,7 @@ This is the sequence of steps I take to setup my NordVPN router vm using Debian 
 
 *UPDATE 2024-08-17: Distro advice based on feedback and testing to date*
 
-Can you use a different distro? *Maybe*, but I haven't had or heard of any success on other distros yet. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed. However, I have only had success using Debian 12. Others have had trouble using Ubuntu (23.10 to be specific). I haven't been able to figure out how to make it work on Ubuntu yet. For that reason, I recommend using Debian 12
+Can you use a different distro? *Sort of*. I'm sure these steps can be adapted to any distro on which the official nordvpn app can be installed. Some have had trouble using Ubuntu (23.10 to be specific), even though it is debian based. I have been able to figure out how to make it work on Ubuntu. Ubuntu requires additional steps, which introduce more opportunities for problems. For that reason, I still recommend using Debian 12. I have added directions for a Ubuntu based setup in the ubuntu folder.
 
 Which nordvpn protocols or options can you use? You should be able to use any protocol or option available in the nordvpn app. Killswitch is always enabled for LAN traffic, but can be disabled for WAN.
 
