@@ -1,12 +1,15 @@
 # Ubuntu Specific Setup Steps
 
-## COMING SOON!!
+## WORK-IN-PROGRESS
 
 > [!CAUTION]
 > This is a *rough* draft of the steps. While it may work, I have not fully tested it yet.
 > These are simply the steps without too much description.
 
-**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown**
+**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown + net tools**
+
+I have worked out how to use dnsmasq and ifupdown + net-tools to make the process a little more universal. See configuration-files read me for info.
+
 
 ## Steps
 
@@ -21,7 +24,10 @@ LAN - static, no address or gateway
 
 `apt update && apt upgrade -y && apt remove ufw -y && apt install iptables-persistent curl -y`
 
-**Setup kea dhcp server** 
+**Setup kea-dhcp server** 
+
+> [!TIP]
+> For a simpler and easier to configure setup, use dnsmasq. Details in the configuration-files readme
 
 steps taken from: https://www.techtutorials.tv/sections/linux/how-to-install-and-configure-kea-dhcp-server/
 
@@ -46,7 +52,8 @@ you can disable ipv6 using the method in the main writeup
 
 **Cofigure network**
 
-Ubuntu uses netplan
+> [!TIP]
+> Ubuntu uses netplan. If you want to use ifupdown + net-tools instead, follow the notes in the configuration-files readme.
 
 set WAN (eth0) to dhcp, set only the address for LAN (eth1)
 
