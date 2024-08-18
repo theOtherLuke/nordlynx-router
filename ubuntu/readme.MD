@@ -25,6 +25,8 @@ steps taken from: https://www.techtutorials.tv/sections/linux/how-to-install-and
 
 `curl -1sLf 'https://dl.cloudsmith.io/public/isc/kea-2-2/setup.deb.sh' | bash`
 
+`apt install isc-kea-dhcp4-server -y`
+
 configure kea-dhcp
 
 `nano /etc/kea/kea-dhcp4.conf`
