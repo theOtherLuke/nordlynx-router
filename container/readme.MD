@@ -2,7 +2,7 @@
 # Pre-configured LXC container for use in Proxmox
 
 > [!NOTE]
-> This version of the container does not have the mopnitor script installed.
+> This version of the container does not have the monitor script installed.
 
 **Step 1: Download the template from one of the links below**
 
