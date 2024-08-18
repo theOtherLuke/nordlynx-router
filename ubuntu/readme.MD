@@ -12,7 +12,7 @@
 
 Create Ubuntu container - minimums: 1 core, 128m, 128m swap, 4GB drive, 2 network interfaces
 
-*I worksopped this using 23.10 because that is the version from issue #3. However, 23.10 is end of life and users are strongly encouraged to update to 24.04. I have updatetd to 24.04 and have seen no issues. Just make sure you don't let a distro upgrade overwrite your config files*
+*I workshopped this using 23.10 because that is the version from issue #3. However, 23.10 is end of life and users are strongly encouraged to update to 24.04. I have updatetd to 24.04 and have seen no issues. Just make sure you don't let a distro upgrade overwrite your config files*
 
 WAN - dhcp, set dns-server under dns section of container in proxmox
 
