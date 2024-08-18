@@ -1,21 +1,8 @@
 #!/bin/bash
 #
 # My script to monitor and recover nordvpn connections
+# This script should work with Debian, Ubuntu, and Fedora
 # It's redundant, but I integrated a function to bring the lan interface up and down
-#
-# UPDATED 2024-08-18
-# assigned LAN interface to a variable to make it easier to update
-#
-# UPDATED 2024-08-03
-# New function in this version: check_vpn_status()
-# My use for this function is to confirm NordVPN is connected to a server in the country I want
-# 
-# New variable to set desired country. This variable could be used to set a whole string of
-# parameters to send to nordvpn app on connection call, but I only use it to declare a country
-#
-# Added $country to every 'nordvpn c' call
-#
-# I added these changes after discovering NordVPN was connecting me to random servers all over the world
 #
 # Please, feel free to notify me of any issues or fixes you find with this new version of the script
 #
@@ -125,21 +112,26 @@ check_connectivity() {
 }
 
 setup_log() {
-        templog=$(tail -n 50 /var/log/nordvpn/monitor.log)
+        templog=$(tail -n 50 /var/log/nordvpn/monitor.log) 
         echo "$templog" >> /var/log/nordvpn/monitor.log
 }
 
 setup_log
 
+# initial check to see if nordvpn is logged in
+echo "[ "$(date)" ] Checking account status..." | tee -a $logfile
+nord_account=$(nordvpn account)
+echo -e "[ "$(date)" ] Account status:\n"$nord_account | tee -a $logfile
+if [[ "$nord_account" == *"not logged in"* ]] ; then
+        systemctl stop nordvpn-net-monitor.service
+        exit
+fi
+
+
 echo "[ "$(date)" ] Establishing VPN connection..." | tee -a $logfile
 nordvpn c $country
 
-# initial check to see if nordvpn is logged in
-$nord_account=$(nordvpn account)
-if [[ "$nord_account" == *"not logged in"* ]] ; then
-        systemctl stop nordvpn-net-monitor.service
-        break
-fi
+
 
 while :; do
         echo "[ "$(date)" ] Checking VPN status..." | tee -a $logfile
