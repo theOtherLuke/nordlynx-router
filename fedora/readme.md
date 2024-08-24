@@ -64,6 +64,8 @@ See how simple that is? That's why I prefer dnsmasq over kea-dhcp, that and I do
 
 Disable conflicting NetworkManager `systemctl disable NetworkManager`
 
+Disable conflicting systemd-resolved `systemctl disable systemd-resolved`
+
 `nano /etc/netplan/config.yaml`
 
 ```
