@@ -1,4 +1,6 @@
 # nordlynx-router - Debian Edition
+*UPDATE 2024-08-25: I am actively working on an install script that should work on any distro. I'm testing using Debian, Ubuntu, and Fedora since they seem to be among the most popular server distros. I assume CentOS would be quite similiar to Fedora since they are both rpm distros. The idea is that you would be able to curl or wget the script and have it install everything and apply the settings. It would even walk users through the login process for NordVPN. Users would enter settings as the script prompts the user for them.*
+
 Instructions for creating a NordVPN router on Debian 12 using the nordlynx protocol.
 
 *UPDATE 2024-08-14: You may have to make adjustments for the particular utility your distro uses for network configuration. Debian uses ifupdown, Ubuntu uses netplan, etc. See Issue #3*
