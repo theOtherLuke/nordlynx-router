@@ -43,7 +43,7 @@ Click *Add*
 
 ### Start the container
 
-Once the container is started, login as **root** and update using `dnf -Syu`
+Once the container is started, login as **root** and update using `dnf upgrade`
 
 **Install required packages** `dnf install iptables-services dnsmasq dnsmasq-utils netplan nano -y`
 
