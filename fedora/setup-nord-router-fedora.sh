@@ -285,7 +285,6 @@ setup-nord() {
 save-nord-settings() {
 	while :; do
 		n_tpl=
-		n_landiscovery=
 		n_virtual=
 		n_whitelist=
 		n_auto=
@@ -294,12 +293,6 @@ save-nord-settings() {
 			n_tpl="on"
 		else
 			n_tpl="off"
-		fi
-		echo -e "\n"
-		if yes-no "Enable NordVPN LAN Discovery?"; then
-			n_landiscovery="on"
-		else
-			n_landiscovery="off"
 		fi
 		echo -e "\n"
 		if yes-no "Enable NordVPN Virtual Location?"; then
@@ -324,7 +317,6 @@ save-nord-settings() {
 		echo
 		echo -e "NordVPN Settings :\n"
 		echo -e "\tThreat Protections Lite  : "$n_tpl
-		echo -e "\tLAN Discovery            : "$n_landiscovery
 		echo -e "\tVitual Location          : "$n_virtual
 		echo -e "\tAutoconnect              : "$n_auto
 		echo -e "\tWhitelist port 22 (ssh)  : "$n_whitelist
@@ -334,7 +326,6 @@ save-nord-settings() {
 			nordvpn set routing on # required
 			nordvpn set analytics off
 			nordvpn set tpl $n_tpl
-			nordvpn set lan-discovery $n_landiscovery
 			nordvpn set virtual-location $n_virtual
 			nordvpn set autoconnect $n_auto
 			if [ "$n_whitelist" == "on" ]; then
