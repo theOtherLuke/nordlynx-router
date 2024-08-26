@@ -139,7 +139,7 @@ This is the same on every distro I have tested. Follow the instructions on the n
 
 Install the NordVPN app
 ```
-sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)
+sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
 ```
 
 Login
