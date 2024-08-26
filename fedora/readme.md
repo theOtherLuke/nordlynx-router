@@ -119,14 +119,6 @@ COMMIT
 COMMIT
 ```
 
-...or you can enter them at the command line:
-```
-iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
-iptables -A FORWARD -i eth1 -o nordlynx -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -i eth1 -o nordlynx -j ACCEPT
-iptables-save > /etc/sysconfig/iptables
-```
-
 Reboot now to make all the changes take effect.
 
 You can test the forwarding by changing *nordlynx* to *<WAN_interface>* in `/etc/sysconfig/iptables` temporarily. Connect a client and make sure it can connect through to the internet. If it works then congratulations! You just created a basic router.
