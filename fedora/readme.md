@@ -15,7 +15,7 @@ Of course, the running size will grow with time due to logs and package changes,
 
 After creating the container(below), run this script:
 
-'bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/fedora/setup-nord-router-fedora.sh)'
+`bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/fedora/setup-nord-router-fedora.sh)`
 
 ### Start with a new container:
 
