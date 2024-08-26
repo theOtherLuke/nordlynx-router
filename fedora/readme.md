@@ -11,7 +11,7 @@ Debian-nordvpn lxc - running = 1.03 GiB, backup file = 369.45 MB
 
 Of course, the running size will grow with time due to logs and package changes, which is why I recommend 4GB.
 
-**Easiest way:** *I'm sure this could be more refined, but it's the way my brain was sorking this weekend*
+**Easiest way:** *I'm sure this could be more refined, but it's the way my brain was working this weekend*
 
 After creating the container(below), run this script:
 
