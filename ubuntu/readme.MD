@@ -6,10 +6,9 @@
 > This is a *rough* draft of the steps. While it may work, I have not fully tested it yet.
 > These are simply the steps without too much description.
 
-**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown + net tools**
+**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown + net-tools**
 
-I have worked out how to use dnsmasq and ifupdown + net-tools to make the process a little more universal. See configuration-files read me for info.
-
+I may change the debian version to use netplan and kea to make this more universal with fedora and ubuntu
 
 ## Steps
 
@@ -22,18 +21,13 @@ WAN - dhcp, set dns-server under dns section of container in proxmox
 LAN - static, no address or gateway
 
 
-`apt update && apt upgrade -y && apt remove ufw -y && apt install iptables-persistent curl -y`
+`apt update && apt upgrade -y && apt remove ufw -y && apt install iptables-persistent -y`
 
-**Setup kea-dhcp server** 
+**Setup kea-dhcp server** - *kea-dhcp4-server is the replacement for isc-dhcp-server* - *isc-dhcp-server is end-of-life*
 
-> [!TIP]
-> For a simpler and easier to configure setup, use dnsmasq. Details in the configuration-files readme
+install kea-dhcp4-server from ubuntu repo:
 
-steps taken from: https://www.techtutorials.tv/sections/linux/how-to-install-and-configure-kea-dhcp-server/
-
-`curl -1sLf 'https://dl.cloudsmith.io/public/isc/kea-2-2/setup.deb.sh' | bash`
-
-`apt install isc-kea-dhcp4-server -y`
+`apt install kea-dhcp4-server -y`
 
 configure kea-dhcp
 
@@ -52,9 +46,6 @@ you can disable ipv6 using the method in the main writeup
 
 **Cofigure network**
 
-> [!TIP]
-> Ubuntu uses netplan. If you want to use ifupdown + net-tools instead, follow the notes in the configuration-files readme.
-
 set WAN (eth0) to dhcp, set only the address for LAN (eth1)
 
 `nano /etc/netplan/config.yaml`
@@ -63,10 +54,14 @@ paste settings from attached file, adapt to your needs, save and exit
 
 `netplan apply`
 
+You may get an error when running the apply. Simply reboot and the settings should have taken.
 
 **Setup iptables rules**
 
 remember, eth1 is LAN, nordlynx is WAN
+
+> [!TIP]
+> To test if forwarding is working without nordvpn, change nordlynx to your wan interface and test on a client before installing/starting nordvpn
 
 ```
 iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
