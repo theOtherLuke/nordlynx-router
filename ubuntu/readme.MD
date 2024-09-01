@@ -42,9 +42,11 @@ Update Ubuntu and install packages:
 ```
 apt update
 apt upgrade -y
-apt install iptables-persistent kea-dhcp4-server -y # firewall and dhcp/dns server
+apt install iptables-persistent kea-dhcp4-server -y # firewall and dhcp server
 apt remove ufw -y # we don't need ufw and it may interfere with iptables
 ```
+
+You could install unbound or some other dns resolver here as well. I use my pihole instance
 
 **Configure settings**
 
