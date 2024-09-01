@@ -1,104 +1,190 @@
 # Ubuntu Specific Setup Steps
 
-## WORK-IN-PROGRESS
+*2024-09-01*
 
-> [!CAUTION]
-> This is a *rough* draft of the steps. While it may work, I have not fully tested it yet.
-> These are simply the steps without too much description.
+**This is the "latest and greatest" version of the project that works with Ubuntu 24.04**
 
-**The biggest differences between this and the debian version is the use of kea-dhcp and netplan instead of dnsmasq and ifupdown + net-tools**
+These steps have been altered from the original Debian version to use packages that play nice with Ubuntu. These same steps should work on plain Debian.
 
-I may change the debian version to use netplan and kea to make this more universal with fedora and ubuntu
+## The easiest way
 
-## Steps
+Pull the install script, make it executable, and run it:
 
-Create Ubuntu container - minimums: 1 core, 128m, 128m swap, 4GB drive, 2 network interfaces
+```
+wget <link to be added soon>
+chmod +x install-ubuntu.sh
+./install-ubuntu.sh
+```
 
-*I workshopped this using 23.10 because that is the version from issue #3. However, 23.10 is end of life and users are strongly encouraged to update to 24.04. I have updatetd to 24.04 and have seen no issues. Just make sure you don't let a distro upgrade overwrite your config files*
+Follow the on screen prompts.
 
-WAN - dhcp, set dns-server under dns section of container in proxmox
+## The long way
 
-LAN - static, no address or gateway
+### This way is recommended way if you want to learn how it goes together
+
+**Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.**
+
+Machine recommendations:
+
+1 core
+
+128MB RAM ( I have succeeded with as little as 96MB, but normally just leave the Proxmox default of 512MB )
+
+128MB swap ( My testing does not show that swap is even being used, so may possibly be excluded. Normally I just leave the Proxmox default of 512MB )
+
+4GB drive ( 2GB minimum )
+
+2 network interfaces ( 1 interface minimum )
 
 
-`apt update && apt upgrade -y && apt remove ufw -y && apt install iptables-persistent -y`
+Update Ubuntu and install packages:
 
-**Setup kea-dhcp server** - *kea-dhcp4-server is the replacement for isc-dhcp-server* - *isc-dhcp-server is end-of-life*
+```
+apt update
+apt upgrade -y
+apt install iptables-persistent kea-dhcp4-server -y # firewall and dhcp/dns server
+apt remove ufw -y # we don't need ufw and it may interfere with iptables
+```
 
-install kea-dhcp4-server from ubuntu repo:
+**Configure settings**
 
-`apt install kea-dhcp4-server -y`
-
-configure kea-dhcp
-
-`nano /etc/kea/kea-dhcp4.conf`
-
-paste settings from attached file, adapt to your needs, save and exit
-
-**enable forwarding**
+***enable forwarding***
 
 `nano /etc/sysctl.conf`
 
-uncomment `#net.ipv4.ip_forward=1`
+and uncomment `#inet.ipv4.ip_forward=1`
 
-you can disable ipv6 using the method in the main writeup
+***iptables***
 
+```
+# clear tables
+iptables -t filter --flush
+iptables -t nat --flush
+# add forwarding rules
+iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
+iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
+```
 
-**Cofigure network**
+You can test forwarding before installing nordvpn by replacing nordlynx with your wan interface. This is a good way to avoid wasted troubleshooting time later.
 
-set WAN (eth0) to dhcp, set only the address for LAN (eth1)
+***Coonfigure the network***
+
+Edit the network configuration file
 
 `nano /etc/netplan/config.yaml`
 
-paste settings from attached file, adapt to your needs, save and exit
-
-`netplan apply`
-
-You may get an error when running the apply. Simply reboot and the settings should have taken.
-
-**Setup iptables rules**
-
-remember, eth1 is LAN, nordlynx is WAN
-
-> [!TIP]
-> To test if forwarding is working without nordvpn, change nordlynx to your wan interface and test on a client before installing/starting nordvpn
+You *must* use spaces in this file, not tabs.
 
 ```
-iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
-iptables -A FORWARD -i eth1 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i eth1 -o nordlynx -j ACCEPT
-iptables-save > /etc/iptables/rules.v4
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+      - <lan_address>/24
 ```
 
+Replace <lan_interface> with your host's lan facing ip address.
 
-**Setup nordvpn**
+***Configure the dhcp server***
 
-this is the same process as the main write up
+Edit the kea-dhcp4 config file
+
+`nano /etc/kea/kea-dhcp4.conf`
+
+```
+{
+"Dhcp4": {
+    "interfaces-config": {
+        "interfaces": ["eth1"] // LAN interface
+    },
+
+    "lease-database": {
+        "type": "memfile",
+        "persist": true,
+        "name": "/var/lib/kea/kea-leases4.csv",
+        "lfc-interval": 3600
+    },
+
+    "renew-timer": 15840,
+    "rebind-timer": 27720,
+    "valid-lifetime": 31680, //lease time
+
+    "option-data": [
+        {
+            "name": "domain-name-servers", // gateway/DNS
+            "data": "192.168.0.1" // dns server, enter the upstream router address unless you are hosting your own dns server, like pihole or adguard
+        },
+
+        {
+            "name": "domain-search",
+            "data": "example.com" // your domin name if you have one. This section may be deleted
+        }
+    ],
+
+    "subnet4": [
+        {
+            "subnet": "10.0.0.0/24", // your network
+            "pools": [ { "pool": "10.0.0.100 - 10.0.0.199" } ], // dhcp range
+            "option-data": [
+                {
+                    "name": "routers", // this machine
+                    "data": "10.0.0.1" // this machine's ipv4 address
+                }
+            ]
+            
+            // Add reservations here
+        }
+        
+        // Add subnets here
+    ]
+}
+}
+```
+
+***Before installing NordVPN, I recommend testing forwarding using the instruction in the iptables section before continuing***
+*This setup should pass traffic from a client without NordVPN installed. Everything up to this point is just how to setup a basic router. The last step is what makes it a NordVPN router.*
+
+***Make it go***
+
+*Install the NordVPN package*
+
+Install NordVPN following instructions here:
+
+https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
 
 `sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)`
 
-login:
+Login to nordvpn: note: the linux without gui login instructions can be found at :
+
+https://support.nordvpn.com/hc/en-us/articles/20226600447633-How-to-log-in-to-NordVPN-on-Linux-devices-without-a-GUI
 
 `nordvpn login`
 
-copy link, past into browser, login, copy link from browser, paste into this command:
+Copy the url and paste it into a browser.
 
-`nordvpn login --callback "<link>"`
+Cancel the request to open an external link.
 
-don't forget the double quotes
+Right-click the "Continue" button and copy the link.
 
-set nordvpn settings:
+On the host terminal/ssh, paste the link into this command : (don't forget to add the double quote around the url )
 
-routing needs to be enabled
+`nordvpn login --callback "<link from Continue button>"`
+
+You should receive a message that you have logged in.
+
+Configure your nordvpn settings:
+
+`nordvpn set ...`
+
+My testing suggests routing needs to be enabled:
 
 `nordvpn set routing on`
 
-turn on autoconnect:
+A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
 
-`nordvpn set autoconnect on`
-
-connect to nordvpn:
-
-`nordvpn c`
-
-test and enjoy
+***Connect and enjoy***
