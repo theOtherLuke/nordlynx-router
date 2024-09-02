@@ -7,6 +7,7 @@ The idea is to be able to use the native linux app for NordVPN to create a whole
 Use the instructions or script in the appropriate folder in this repository.
 
 ## Easy Install
+***This is a work in progress*** * There are currently no working scripts for debian or ubuntu
 
 System recommendations:
 
