@@ -4,7 +4,7 @@
 
 The idea is to be able to use the native linux app for NordVPN to create a whole-network vpn router. So far I have been able to get this working on Ubuntu, Debian, and Fedora.
 
-Use the instructions or script in the appropriate folder in this repository.
+Use the script below or follow the instructions in the appropriate folder in this repository.
 
 ## System recommendations
 
