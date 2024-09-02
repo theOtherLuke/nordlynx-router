@@ -34,6 +34,8 @@ Machine recommendations:
 
 2 network interfaces ( 1 interface minimum )
 
+Set dns address under 'DNS Server' on the container settings
+
 
 Update Ubuntu and install packages:
 
