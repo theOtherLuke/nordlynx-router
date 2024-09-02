@@ -1,9 +1,0 @@
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    wan_interface:
-      dhcp4: true
-    lan_interface:
-      addresses:
-      - lan_ip_address/24
