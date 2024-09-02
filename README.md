@@ -6,10 +6,7 @@ The idea is to be able to use the native linux app for NordVPN to create a whole
 
 Use the instructions or script in the appropriate folder in this repository.
 
-## Easy Install
-***This is a work in progress*** * There are currently no working scripts for debian or ubuntu
-
-System recommendations:
+## System recommendations
 
 1 core
 
@@ -21,19 +18,18 @@ System recommendations:
 
 2 network interfaces
 
+## Debian, Ubuntu, Fedora
 
-### Debian
+***UPDATED 2024-09-02*** *Uploaded new "universal" install script*
 
-`bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/debian/install-debian.sh)`
+**Run the install script**
 
-### Ubuntu
+Using wget: *Debian, Ubuntu*
 
-`bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh)`
+`bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/setup-nord-router.sh)`
 
-### Fedora
+Using curl: *Fedora*
 
-*New script version coming soon*
-
-`bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/fedora/setup-nord-router-fedora.sh)`
+`bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/setup-nord-router.sh)`
 
 ## For detailed instructions, consult the appropriate folder.
