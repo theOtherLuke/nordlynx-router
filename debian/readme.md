@@ -1,12 +1,8 @@
 # Debian Specific Setup Steps
 
-*2024-09-01* *This version does not yet work with this combination*
-
 See 'old-version.txt' for original version
 
-**This is the "latest and greatest" version of the project that works with Ubuntu 24.04**
-
-These steps have been altered from the original Debian version to use packages that play nice with Ubuntu. These same steps should work on plain Debian.
+**This is the "latest and greatest" version of the project**
 
 ## Start with a fresh Debian 12 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.
 
@@ -26,18 +22,6 @@ Update Debian:
 
 `apt update && apt upgrade -y`
 
-## The easiest way
-
-Run the install script:
-
-```
-bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/debian/install-debian.sh)
-```
-
-Follow the on screen prompts.
-
-## The long way
-
 ### This way is recommended way if you want to learn how it goes together
 
 Update Debian and install packages:
@@ -45,8 +29,7 @@ Update Debian and install packages:
 ```
 apt update
 apt upgrade -y
-apt install iptables-persistent kea-dhcp4-server -y # firewall and dhcp server
-apt remove ifupdown* -y
+apt install iptables-persistent dnsmasq dnsmaq-utils netplan.io -y
 ```
 
 You could install unbound or some other dns resolver here as well. I use my pihole instance
@@ -69,6 +52,8 @@ iptables -t nat --flush
 iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
 iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
+# save the rules
+iptables-save > /etc/iptables/rules.v4
 ```
 
 You can test forwarding before installing nordvpn by replacing nordlynx with your wan interface. This is a good way to avoid wasted troubleshooting time later.
@@ -97,61 +82,19 @@ Replace <lan_interface> with your host's lan facing ip address.
 
 ***Configure the dhcp server***
 
-Edit the kea-dhcp4 config file
+Edit the dnsmasq config file
 
-`nano /etc/kea/kea-dhcp4.conf`
+`nano /etc/dnsmasq.conf`
 
 ```
-{
-"Dhcp4": {
-    "interfaces-config": {
-        "interfaces": ["eth1"] // LAN interface
-    },
+## LAN facing interface ##
+interface=eth1
 
-    "lease-database": {
-        "type": "memfile",
-        "persist": true,
-        "name": "/var/lib/kea/kea-leases4.csv",
-        "lfc-interval": 3600
-    },
-
-    "renew-timer": 15840,
-    "rebind-timer": 27720,
-    "valid-lifetime": 31680, //lease time
-
-    "option-data": [
-        {
-            "name": "domain-name-servers", // gateway/DNS
-            "data": "192.168.0.1" // dns server, enter the upstream router address unless you are hosting your own dns server, like pihole or adguard
-        },
-
-        {
-            "name": "domain-search",
-            "data": "example.com" // your domin name if you have one. This section may be deleted
-        }
-    ],
-
-    "subnet4": [
-        {
-            "subnet": "10.0.0.0/24", // your network
-            "pools": [ { "pool": "10.0.0.100 - 10.0.0.199" } ], // dhcp range
-            "option-data": [
-                {
-                    "name": "routers", // this machine
-                    "data": "10.0.0.1" // this machine's ipv4 address
-                }
-            ]
-            
-            // Add reservations here
-        }
-        
-        // Add subnets here
-    ]
-}
-}
+## address pool for dhcp, and lease time ##
+dhcp-range=10.1.1.2,10.1.1.20,1h
 ```
 
-***Before installing NordVPN, I recommend testing forwarding using the instruction in the iptables section before continuing***
+***Before installing NordVPN, I recommend testing forwarding using the instructions in the iptables section above before continuing***
 *This setup should pass traffic from a client without NordVPN installed. Everything up to this point is just how to setup a basic router. The last step is what makes it a NordVPN router.*
 
 ***Make it go***
