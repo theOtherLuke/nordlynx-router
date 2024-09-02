@@ -6,21 +6,7 @@
 
 These steps have been altered from the original Debian version to use packages that play nice with Ubuntu. These same steps should work on plain Debian.
 
-## The easiest way
-
-Run the install script:
-
-```
-bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/debian/install-debian.sh)
-```
-
-Follow the on screen prompts.
-
-## The long way
-
-### This way is recommended way if you want to learn how it goes together
-
-**Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.**
+## Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.
 
 Machine recommendations:
 
@@ -34,6 +20,23 @@ Machine recommendations:
 
 2 network interfaces ( 1 interface minimum )
 
+Update Debian:
+
+`apt update && apt upgrade -y`
+
+## The easiest way
+
+Run the install script:
+
+```
+bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/debian/install-debian.sh)
+```
+
+Follow the on screen prompts.
+
+## The long way
+
+### This way is recommended way if you want to learn how it goes together
 
 Update Debian and install packages:
 
