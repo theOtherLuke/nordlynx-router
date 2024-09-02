@@ -1,0 +1,26 @@
+start with fresh debian install
+
+install iptables-persistent and dnsmasq
+
+configure network
+  wan interface dhcp
+  lan interfaace static and only set address
+
+configure dnsmasq
+  set interface
+  set dhcp-range
+
+enable ipv4 forwarding in /etc/sysctl.conf
+
+write iptables
+  normal forwarding rules, replace wan with "nordlynx"
+
+install nordvpn
+
+configure norvpn
+  routing must be enabled
+    `nordvpn set routing on`
+
+login nordvpn
+
+connect
