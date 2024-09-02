@@ -4,7 +4,7 @@ See 'old-version.txt' for original version
 
 **This is the "latest and greatest" version of the project**
 
-## Start with a fresh Debian 12 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.
+## Start with a fresh Debian 12 install. I use lxc containers on Proxmox. VM or bare metal should be similar.
 
 Machine recommendations:
 
