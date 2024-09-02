@@ -1,6 +1,8 @@
 # Debian Specific Setup Steps
 
-*2024-09-01*
+*2024-09-01* *This version does not yet work with this combination*
+
+See 'old-version.txt' for original version
 
 **This is the "latest and greatest" version of the project that works with Ubuntu 24.04**
 
