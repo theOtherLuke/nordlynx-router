@@ -2,8 +2,8 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    eth0:
+    wan_interface:
       dhcp4: true
-    eth1:
+    lan_interface:
       addresses:
-      - 10.0.9.1/24
+      - lan_ip_address/24
