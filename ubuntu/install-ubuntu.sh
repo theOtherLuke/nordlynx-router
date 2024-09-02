@@ -25,10 +25,10 @@ apt update && apt upgrade -y && apt purge ufw* -y && apt install iptables-persis
 
 
 # pull files from git repository and save to proper location
-wget -O /etc/iptables/rules.v4 https://file.io/lTmVWUGyQ1s2
+wget -O /etc/iptables/rules.v4 https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/rules.v4
 cp /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.bak
-wget -O /etc/kea/kea-dhcp4.conf https://file.io/OSBex9ZtIXXA
-wget -O /etc/netplan/config.yaml https://file.io/R1hQJvutxeL6
+wget -O /etc/kea/kea-dhcp4.conf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/kea-dhcp4.conf
+wget -O /etc/netplan/config.yaml https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/config.yaml
 
 # Populate list of wired network interfaces
 system_interfaces=$(ls /sys/class/net)
