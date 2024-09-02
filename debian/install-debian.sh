@@ -20,7 +20,6 @@ subnet=
 subnet_prefix=
 
 # install basic dependencies and reconfigure base system
-systemctl disable --now systemd-resolved
 apt update && apt upgrade -y && apt purge ifupdown* -y && apt install iptables-persistent kea-dhcp4-server -y
 
 
@@ -40,7 +39,7 @@ done
 
 #warn about less than 2 network interfaces
 if [ ${#interfaces[@]} -lt 2 ]; then
-	echo -e "Only "${#interfaces[@]}" available. "'\033[1;36m\'"If you need to add more network interfaces, do that now"'\033[0;0m'"\n"
+	echo -e "\tOnly "${#interfaces[@]}" available. "'\033[1;36m'"\n\tIf you need to add more network interfaces, do that now"'\033[0;0m'"\n"
 	read -p "Press [enter] to continue..."
 fi
 
