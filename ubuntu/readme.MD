@@ -8,12 +8,10 @@ These steps have been altered from the original Debian version to use packages t
 
 ## The easiest way
 
-Pull the install script, make it executable, and run it:
+Run the install script:
 
 ```
-wget -O install-ubuntu.sh https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh
-chmod +x install-ubuntu.sh
-./install-ubuntu.sh
+bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh)
 ```
 
 Follow the on screen prompts.
