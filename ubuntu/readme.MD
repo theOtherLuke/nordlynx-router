@@ -6,21 +6,7 @@
 
 These steps have been altered from the original Debian version to use packages that play nice with Ubuntu. These same steps should work on plain Debian.
 
-## The easiest way
-
-Run the install script:
-
-```
-bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh)
-```
-
-Follow the on screen prompts.
-
-## The long way
-
-### This way is recommended way if you want to learn how it goes together
-
-**Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.**
+## Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal should be similar.
 
 Machine recommendations:
 
@@ -36,6 +22,23 @@ Machine recommendations:
 
 Set dns address under 'DNS Server' on the container settings
 
+Update Ubuntu:
+
+`apt update && apt upgrade -y`
+
+## The easiest way
+
+Run the install script:
+
+```
+bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh)
+```
+
+Follow the on screen prompts.
+
+## The long way
+
+### This way is recommended way if you want to learn how it goes together
 
 Update Ubuntu and install packages:
 
