@@ -11,7 +11,7 @@ These steps have been altered from the original Debian version to use packages t
 Pull the install script, make it executable, and run it:
 
 ```
-wget <link to be added soon>
+wget -O install-ubuntu.sh https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/ubuntu/install-ubuntu.sh
 chmod +x install-ubuntu.sh
 ./install-ubuntu.sh
 ```
