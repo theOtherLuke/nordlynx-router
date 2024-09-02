@@ -2,7 +2,9 @@
 
 **I created this to help others build and configure their own whole-network router using NordVPN**
 
-Use the instructions or script in the the appropriate folder in this repository.
+The idea is to be able to use the native linux app for NordVPN to create a whole-network vpn router. So far I have been able to get this working on Ubuntu, Debian, and Fedora.
+
+Use the instructions or script in the appropriate folder in this repository.
 
 ## Easy Install
 
@@ -21,9 +23,7 @@ System recommendations:
 
 ### Debian
 
-Debian instructions temporarily unavailable. You can use the Ubuntu script in the meantime.
-
-`<script command coming soon>`
+`bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/debian/install-debian.sh)`
 
 ### Ubuntu
 
