@@ -6,7 +6,7 @@
 
 These steps have been altered from the original Debian version to use packages that play nice with Ubuntu. These same steps should work on plain Debian.
 
-## Start with a fresh Ubuntu 24.04 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.
+## Start with a fresh Debian 12 install. I use lxc containers on Proxmox. VM or bare metal shoul be similar.
 
 Machine recommendations:
 
