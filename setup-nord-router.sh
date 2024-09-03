@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+
+#set -x
+
 # empty array to contain network interfaces
 declare -a interfaces
 # true and false are not needed. I use them for readability
@@ -21,7 +25,18 @@ release=$(cat /etc/*-release | grep NAME)
 release=${release,,}
 
 # Fedora, aka rpm distro
-if [[ "$release" =~ (fedora) ]]; then # rpm distro, excluding centos. netplan is not readily available for centos
+if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # rpm distro, excluding centos. netplan is not readily available for centos
+	if [[ "$release" =~ (centos|almalinux) ]]; then
+		#enable epel repo for iptables-services, netplan.io, and systemd-networkd
+		dnf upgrade -y
+		dnf install 'dnf-command(config-manager)' -y
+		dnf config-manager --set-enabled crb -y
+		dnf install epel-release -y
+		#we are using networkd as the backend
+		dnf install systemd-networkd -y
+		systemctl disable --now NetworkManager
+		systemctl enable --now systemd-networkd
+	fi
 	# install basic dependencies and reconfigure base system
 	dnf upgrade -y
 	dnf install iptables-services dnsmasq dnsmasq-utils netplan.io nano -y
@@ -316,7 +331,7 @@ setup-nord() {
                         done
                 else
 						echo -e '\033[1;33m'"A command not found error is normal. This is just checking if nordvpn is installed."'\033[0m'
-                        if [[ "$release" =~ (fedora) ]]; then # rpm distro
+                        if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # rpm distro
 								# this step is slightly modified from the official nordvpn steps.
 								# In order to automate the installation the script is changed to assume yes. Same as -y on dnf
                                 if curl -o install.sh https://downloads.nordcdn.com/apps/linux/install.sh && sed -i 's/ASSUME_YES=false/ASSUME_YES=true/' install.sh && chmod +x install.sh && ./install.sh && rm install.sh; then
@@ -421,7 +436,7 @@ save-settings() {
 # pull the monitor script and service
 # install and enable monitor service
 setup-monitoring() { #note- rpm distros have curl but not wget standard, deb distros have wget but not curl standard, you can add wget to rpm or curl to deb
-	if [[ "$release" =~ (fedora) ]]; then # add other rpm distros by separating with a pipe '|' eg- (fedora|centos|etc) I only put fedora for now because that is all I'm testing
+	if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # add other rpm distros by separating with a pipe '|' eg- (fedora|centos|etc) I only put fedora for now because that is all I'm testing
 		curl -o /root/check-connection.sh https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/monitor-script/check-connection.sh
 		chmod +x /root/check-connection.sh
 		curl -o /etc/systemd/system/nordvpn-net-monitor.service https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/monitor-script/nordvpn-net-monitor.service
@@ -469,7 +484,6 @@ while :; do
 		if setup-nord ; then
 			#create iptables
 			echo -e '\033[1;36m'"Creating iptables..."'\033[0m'
-			create-iptables
 			#get and save nordvpn settings
 			save-nord-settings
 			#setup monitoring service
