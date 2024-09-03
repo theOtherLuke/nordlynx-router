@@ -25,7 +25,7 @@ release=$(cat /etc/*-release | grep NAME)
 release=${release,,}
 
 # Fedora, aka rpm distro
-if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # rpm distro, excluding centos. netplan is not readily available for centos
+if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # rpm distro
 	if [[ "$release" =~ (centos|almalinux) ]]; then
 		#enable epel repo for iptables-services, netplan.io, and systemd-networkd
 		dnf upgrade -y
@@ -58,7 +58,7 @@ elif [[ "$release" =~ (ubuntu|debian) ]]; then # deb distro
 	wget -O /etc/iptables/rules.v4 https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/rules.v4
 	wget -O /etc/netplan/config.yaml https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/config.yaml
 	wget -O /etc/dnsmasq.conf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/config-files/dnsmasq.conf
-	# install dependencies to build ipcalc, Fedora has the correct version, debian must be built from source
+	# install dependencies to build ipcalc, Fedora/centos/almalinux has the correct version, debian/ubuntu must be built from source
 	apt update
 	if apt install meson ninja-build -y; then
 		if wget https://gitlab.com/ipcalc/ipcalc/-/archive/1.0.3/ipcalc-1.0.3.tar && tar xvf ipcalc-1.0.3.tar && cd ipcalc-1.0.3 && meson setup build && ninja -C build && mv ./build/ipcalc /usr/bin; then
@@ -73,7 +73,7 @@ elif [[ "$release" =~ (ubuntu|debian) ]]; then # deb distro
 	fi
 	rm -rf ipcalc* # cleanup build files
 else
-	echo -e '\033[1;31m'"Only Debian, Ubuntu, and Fedora are currently supported by this script."
+	echo -e '\033[1;31m'"Only Debian, Ubuntu, Fedora, CentOS, and AlmaLinux are currently supported by this script."
 	echo -e "You may try installing this manually by following the writeup."'\033[0;0m'
 	exit 99
 fi
@@ -436,7 +436,7 @@ save-settings() {
 # pull the monitor script and service
 # install and enable monitor service
 setup-monitoring() { #note- rpm distros have curl but not wget standard, deb distros have wget but not curl standard, you can add wget to rpm or curl to deb
-	if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # add other rpm distros by separating with a pipe '|' eg- (fedora|centos|etc) I only put fedora for now because that is all I'm testing
+	if [[ "$release" =~ (fedora|centos|almalinux) ]]; then # add other rpm distros by separating with a pipe '|' eg- (fedora|centos|etc)
 		curl -o /root/check-connection.sh https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/monitor-script/check-connection.sh
 		chmod +x /root/check-connection.sh
 		curl -o /etc/systemd/system/nordvpn-net-monitor.service https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/monitor-script/nordvpn-net-monitor.service
