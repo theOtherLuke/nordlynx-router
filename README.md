@@ -2,7 +2,15 @@
 
 **I created this to help others build and configure their own whole-network router using NordVPN**
 
-The idea is to be able to use the native linux app for NordVPN to create a whole-network vpn router. So far I have been able to get this working on Ubuntu, Debian, and Fedora.
+The idea is to be able to use the native linux app for NordVPN to create a whole-network vpn router. So far I have been able to get this working on Ubuntu, Debian, Fedora, CentOS, and AlmaLinux. Every version of the install has the same packages being used for portability between distros.
+
+***They all use these packages:***
+
+*Network configuration:*  netplan.io
+
+*Firewall configuration:*  iptables-persistent or iptables-services - same package, different name depending on distro
+
+*dhcp server:*  dnsmasq + dnsmasq-utils
 
 Use the script below or follow the instructions in the appropriate folder in this repository.
 
@@ -18,9 +26,12 @@ Use the script below or follow the instructions in the appropriate folder in thi
 
 2 network interfaces
 
-## Debian, Ubuntu, Fedora
+Ubuntu and Fedora require dns server address to be manually configured. I set it in the container settings in Proxmox
 
-***UPDATED 2024-09-02*** *Uploaded new "universal" install script*
+## Debian, Ubuntu, Fedora, CentOS, AlmaLinux
+I have not compared the on-disk or backup sizes of each of these.
+
+***UPDATED 2024-09-02*** *Uploaded new "universal" install script, added support for CentOS and AlmaLinux*
 
 **Run the install script**
 
@@ -28,7 +39,9 @@ Using wget: *Debian, Ubuntu*
 
 `bash <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/setup-nord-router.sh)`
 
-Using curl: *Fedora*
+Using curl: *Fedora,CentOS,AlmaLinux*
+
+Be forewarned, CentOS and AlmaLinux are a significantly slower install process due to needing to add repos and the oddly slow speed of dnf operations on these distros. Interestingly, the nordvpn install script from nord runs faster on these. They're still a slower install though.
 
 `bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/main/setup-nord-router.sh)`
 
