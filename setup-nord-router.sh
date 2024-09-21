@@ -398,6 +398,7 @@ save-nord-settings() {
 		if yes-no "Confirm these settings :"; then
 			# set nordvpn settings
 			nordvpn set routing on # required
+   			nordvpn set lan-discovery on # required
 			nordvpn set analytics off # I use a vpn for privacy, not so the vpn provider can collect data
 			nordvpn set tpl $n_tpl
 			nordvpn set virtual-location $n_virtual
