@@ -1,0 +1,8 @@
+network:
+  version: 2
+  wifis:
+    wifi_interface:
+      access-points:
+        wifi_ap:
+          password: wifi_password
+      dhcp4: true
