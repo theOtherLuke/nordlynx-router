@@ -1,3 +1,12 @@
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i lan_interface -m comment --comment nord-router -j CONNMARK --set-xmark 0xe1f1/0xffffffff
+COMMIT
+
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
