@@ -94,6 +94,15 @@ systemctl enable --now iptables
 Create the rules. The easiest way is to open the file and paste them in. `nano /etc/sysconfig/iptables` ip6tables would be for IPv6, obviously.
 
 ```
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i eth1 -m comment --comment nord-router -j CONNMARK --set-xmark 0xe1f1/0xffffffff
+COMMIT
+
 *filter
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
@@ -142,6 +151,10 @@ Check the current settings `nordvpn settings`
 Change settings using `nordvpn set <setting> [on|off]`
 
 Routing ***must*** be enabled to pass traffic from LAN `nordvpn set routing on`
+
+It appears that lan-discovery needs to be enabled as well `nordvpn set lan-discovery on`
+
+This is also where you configure auto connect `nordvpn set auto-connect on`
 
 Personally, I disable analytics `nordvpn set analytics off`. After all, I didn't get a VPN for privacy just to let the provider collect data.
 
