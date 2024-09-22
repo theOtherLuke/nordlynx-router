@@ -31,7 +31,7 @@ Ubuntu and Fedora require dns server address to be manually configured. I set it
 ## Debian, Ubuntu, Fedora, CentOS, AlmaLinux
 I have not compared the on-disk or backup sizes of each of these.
 
-***UPDATED 2024-09-02*** *Uploaded new "universal" install script, added support for CentOS and AlmaLinux*
+*See debian/old-version.txt for original writeup*
 
 **Run the install script**
 
