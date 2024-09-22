@@ -42,16 +42,33 @@ and uncomment `#inet.ipv4.ip_forward=1`
 
 ***iptables***
 
+Open `/etc/iptables/rules.v4` and paste in the following. Make sure you change "eth1" to match your lan interface
+
 ```
-# clear tables
-iptables -t filter --flush
-iptables -t nat --flush
-# add forwarding rules
-iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
-iptables -A FORWARD -i enp6s19 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i enp6s19 -o nordlynx -j ACCEPT
-# save the rules
-iptables-save > /etc/iptables/rules.v4
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A PREROUTING -i eth1 -m comment --comment nord-router -j CONNMARK --set-xmark 0xe1f1/0xffffffff
+COMMIT
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A FORWARD -i eth1 -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i eth1 -o nordlynx -j ACCEPT
+COMMIT
+
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -o nordlynx -j MASQUERADE
+COMMIT
 ```
 
 You can test forwarding before installing nordvpn by replacing nordlynx with your wan interface. This is a good way to avoid wasted troubleshooting time later.
@@ -127,9 +144,12 @@ Configure your nordvpn settings:
 
 `nordvpn set ...`
 
-My testing suggests routing needs to be enabled:
+My testing shows routing and lan-discovery need to be enabled:
 
-`nordvpn set routing on`
+```
+nordvpn set routing on
+nordvpn set lan-discovery on
+```
 
 A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
 
