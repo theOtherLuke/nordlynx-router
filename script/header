@@ -15,7 +15,6 @@ header(){
 
     Whole-network VPN router using the NordVPN Service
 
-     !!!Notice: An active NordVPN account is required
 EOF
 }
 clear && header
