@@ -18,3 +18,4 @@ header(){
      !!!Notice: An active NordVPN account is required
 EOF
 }
+clear && headrer
