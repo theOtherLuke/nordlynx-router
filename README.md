@@ -36,6 +36,8 @@ I have not compared the on-disk or backup sizes of each of these.
 *See debian/old-version.txt for original writeup*
 
 **Run the install script**
+> [!WARNING]
+> The script is not production ready. I advise you to use it for reference only. When the new script is ready, I will update these links.
 
 Using wget: *Debian, Ubuntu*
 
@@ -43,7 +45,7 @@ Using wget: *Debian, Ubuntu*
 
 Using curl: *Fedora,CentOS,AlmaLinux*
 
-Be forewarned, CentOS and AlmaLinux are a significantly slower install process due to needing to add repos and the oddly slow speed of dnf operations on these distros. Interestingly, the nordvpn install script from nord runs faster on these. They're still a slower install though.
+Be forewarned, CentOS and AlmaLinux are a significantly slower install process due to needing to add repos and the oddly slow speed of dnf operations on these distros. Interestingly, the nordvpn install script from nord runs faster on these. They're still a overall slower install though.
 
 `bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/setup-nord-router.sh)`
 
