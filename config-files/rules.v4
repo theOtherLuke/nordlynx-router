@@ -13,6 +13,8 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 -A FORWARD -i lan_interface -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -i lan_interface -o nordlynx -j ACCEPT
+-A OUTPUT -d mgmt_subnet.0/24 -o mgmt_interface -j ACCEPT
+-A OUTPUT -o mgmt_interface -j DROP
 COMMIT
 
 *nat
