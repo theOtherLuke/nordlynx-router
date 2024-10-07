@@ -2,6 +2,6 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    lan_interface:
+    net_interface:
       addresses:
-      - lan_ip_address/24
+      - ip_address/24
