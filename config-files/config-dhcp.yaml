@@ -2,5 +2,5 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    wan_interface:
+    net_interface:
       dhcp4: true
