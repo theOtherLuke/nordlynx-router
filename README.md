@@ -1,6 +1,6 @@
 # Linux based NordVPN router
 
-## ***Many apologies for any chaos or confusion. Sometimes I get excited and share before ready. These scripts are not yet polished and 100% reliable yet. Use at your own risk. I suggest following the write-up in the debian folder. Replace the network configuration with what works for you. Or break down the script and follow the steps or even write your own.***
+## ***Many apologies for any chaos or confusion. Sometimes I get excited and share before ready. These install scripts are not yet polished and 100% reliable yet. Use at your own risk. I suggest following the write-up in the debian folder. Replace the network configuration with what works for you. Or break down the script and follow the steps or even write your own.***
 
 ## For those following along, here are some status updates-
 I have been doing *a lot* of studying. I'm doing my best to learn and better understand how to script in bash. I have previously worked in c#, c, c++, vb, and basic, but only for very small and non-critical uses like school or simple utilities for personal use, and its been a *very* long time since my last line of code. I hope my continued education is evident in the structure, perfomance, and logic in these scripts. As always, I welcome input, coaching, correction, and ideas.
@@ -58,7 +58,7 @@ Using wget: *Debian, Ubuntu*
 
 Using curl: *Fedora,CentOS,AlmaLinux*
 
-Be forewarned, CentOS and AlmaLinux are a significantly slower install process due to needing to add repos and the oddly slow speed of dnf operations on these distros. Interestingly, the nordvpn install script from nord runs faster on these. They're still a overall slower install though.
+Be forewarned, CentOS and AlmaLinux are a significantly slower install process due to needing to add repos and the oddly slow speed of dnf operations on these distros. Interestingly, the nordvpn install script from nord runs faster on these. They're still an overall slower install though.
 
 `bash <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/setup-nord-router.sh)`
 
