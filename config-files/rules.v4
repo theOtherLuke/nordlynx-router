@@ -14,8 +14,6 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 -A FORWARD -i lan_interface -o nordlynx -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A FORWARD -i lan_interface -o nordlynx -j ACCEPT
--A FORWARD -i mgmt_interface -o nordlynx -m state --state RELATED,ESTABLISHED -j DROP
--A FORWARD -i mgmt_interface -o nordlynx -j DROP
 -A OUTPUT -o mgmt_interface -j DROP
 COMMIT
 
