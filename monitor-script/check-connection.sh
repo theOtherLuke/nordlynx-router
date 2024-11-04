@@ -79,6 +79,7 @@ wan_interface=wlp1s0
 wan_is_static=$false
 logfile="/var/log/nordvpn/monitor.log"
 connected=$false
+post_quantum=$false
 mv $logfile $logfile.old
 
 ### FUNCTIONS
@@ -88,28 +89,41 @@ mv $logfile $logfile.old
 # Always returns $true because it loops until it is $true.
 check-wan() {
     if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] We are using $wan_interface for WAN. Checking connection..." | tee -a $logfile ; fi
-    if ip -br a show $wan_interface | grep DOWN &> /dev/null ; then
+    if [[ $wan_interface =~ ^([w][lp|lan|lo]) ]] ; then
+        while ! ip a | grep $wan_interface &> /dev/null ; do
+            sleep 3
+        done
+    fi
+    if ! ip -br a show $wan_interface | grep UP &> /dev/null ; then
         if [[ "$connected" == "$true" ]] ; then
             echo "[ $(date) ] WAN is DOWN!" | tee -a $logfile
             echo "[ $(date) ] Disconnecting NordVPN..." | tee -a $logfile
-            nordvpn d &> /dev/null
+			disconnect
+#            nordvpn d &> /dev/null
             connected=$false
+            systemctl restart nordvpnd.service
         fi
         echo "[ $(date) ] WAN is not connected: Waiting for connection..." | tee -a $logfile
-        while ip -br a show $wan_interface | grep DOWN &> /dev/null ; do # if DOWN, traps until UP
+        while ! ip -br a show $wan_interface | grep UP &> /dev/null ; do # if DOWN, traps until UP
             sleep 10
         done
         echo "[ $(date) ] WAN is connected" | tee -a $logfile
-        while ! check-connectivity &> /dev/null ; do
-            sleep 2 # give dhcp a chance to give an address on its own
+		while ! ip a show $wan_interface | grep inet &> /dev/null ; do
+            sleep 5 # give dhcp a chance to give an address on its own
             if [[ "$wan_is_static" == "$false" && "$(ip a show $wan_interface | grep UP)" && ! "$(ip a show $wan_interface | grep inet)" ]] ; then
-                dhclient $wan_interface &> /dev/null # request an address
+                if ! dhclient $wan_interface &> /dev/null ; then # request an address
+					echo "[ $(date) ] Unable to get address from dhcp server. Check settings." | tee -a $logfile
+					sleep 10
+				else
+					if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] WAN is connected" | tee -a $logfile ; fi
+					return $true
+				fi
             fi
         done
         return $true
     elif ip -br a show $wan_interface | grep UP &> /dev/null ; then
         if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] WAN is connected" | tee -a $logfile ; fi
-            return $true
+        return $true
     else
         echo "[ $(date) ] Unknown WAN state. Exiting..." | tee -a $logfile
             echo $(ip -br a show $wan_interface) | tee -a $logfile
@@ -137,22 +151,25 @@ check-vpn() {
     fi
 }
 
-# After <n> seconds we kill the connection request, pause 10 seconds, and try again.
-# Each attempt should automatically try a different server.
-# Eventually it will hit one that connects in seconds. Those are the ones we want.
-# NordVPN is supposed to direct us to the fastest/nearest available server for us at any given time, but that doesn't always happen.
-# Of course, this may be a side effect of using my phone to hotspot a wan connection while I wait for cable install.
 connect-vpn() {
     while :; do
         echo "[ $(date) ] Connecting to NordVPN: $test_country" | tee -a $logfile
-        exec 3< <(connect $country) # run connect attempt in background
-        while read -r <&3 result ; do # read and process output from background
+        exec 3< <(connect $country) # redirect output of connect() to 3 since connect() runs as a background process
+        connect_attempt=0
+        while read -r <&3 result ; do # read and process output from 3
             echo -e "[ $(date) ] $result" | tee -a $logfile
             if [[ "$result" =~ "aborted" ]] ; then
+				if [[ $connect_attempt -eq 5 ]] ; then
+					reboot # I have encountered a rare problem that only seems to resolve by rebooting
+				fi
+				((connect_attempt++))
                 sleep 10 # waiting to try connect again
                 check-wan
             elif [[ "$result" =~ "connected" ]] ; then
                 echo "[ $(date) ] Successful connection to $(nordvpn status | grep Server)" | tee -a $logfile
+                if [[ $post_quantum == $true ]] ; then
+					nordvpn set post-quantum on &> /dev/null # a problem with the current version of nordvpn on certain systems causes connection failure when post-quantum is enabled, but is fine if we enable after connection
+				fi
                 connected=$true
                 return $true
             elif [[ "$result" =~ "does not exist" ]] ; then
@@ -161,7 +178,7 @@ connect-vpn() {
                     systemctl stop nordvpn-net-monitor.service
                     exit 4
                 else
-                    echo -e "[ $(date) ] Invalid country code specified: $country\n\tSetting to auto..." | tee -a $logfile
+                    echo -e "[ $(date) ] Invalid country code specified: $country\n\tSetting to auto-select country..." | tee -a $logfile
                     country=''
                     sleep 3
                 fi
@@ -170,33 +187,23 @@ connect-vpn() {
     done
 }
 
-# connect() is only called as a background process by connect-vpn() and takes up to 1
-# argument. It could easily support any nordvpn argument, but we only use it for country.
-# A 'while read...' block in the calling function captures output from this function
-# The actual connection to nordvpn happens here
+# makes 1 attempt to connect to nordvpn. try to kill attempt after timeout
+# usage:
+#   connect <options>
 connect() {
-    nordvpn c $1 &
+    nordvpn c $@ &
     npid=$!
-    sleep 10 # connection timeout, how long to give nordvpn to connect
-    if test -d /proc/$npid ; then # is 'nordvpn c' still alive
-        if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] Killing 'nordvpn connect' attempt..." | tee -a $logfile ; fi
-        while test -d /proc/$npid ; do
-            pids=( $(pidof "nordvpn" &> /dev/null) )
-            for pid in "$pids" ; do
-                if [[ $pid =~ ^[0-9]+$ ]] ; then
-                    echo "Killing PID : $pid"
-                    kill "$pid"
-                    if ! pidof "nordvpn" ; then
-                        break
-                    fi
-                fi
-            done
-        done
-        nordvpn d &> /dev/null
-        echo "Connect aborted!"
-    else
-        : # you could add tasks here or after it connects
-    fi
+    sleep 10
+	while [[ -d /proc/$npid ]] && [[ ! $(pidof "nordvpn c") =~ (Terminated) ]] ; do
+			if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] Killing 'nordvpn connect' attempt..." | tee -a $logfile ; fi
+			kill $npid &> /dev/null
+			sleep 1
+    done
+}
+
+disconnect() {
+	nordvpn d &> /dev/null
+	nordvpn set post-quantum off &> /dev/null  # this is part of a work-around for problems connecting on certain systems
 }
 
 check-connectivity() {
@@ -228,7 +235,8 @@ check-account-status() {
         echo "[ $(date) ] You are logged in to NordVPN!"
     else
         if [[ "$nordvpn status" =~ "Connected" ]] ; then
-            nordvpn d # something went wrong. we shouldn't be connected at this point
+			disconnect
+#            nordvpn d # something went wrong. we shouldn't be connected at this point
         fi
         sleep 10
         systemctl restart nordvpn-net-monitor.service
