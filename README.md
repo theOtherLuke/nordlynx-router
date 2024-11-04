@@ -7,11 +7,17 @@ I have been doing *a lot* of studying. I'm doing my best to learn and better und
 
 As of 2024-10-13:
 
-  1- A new version of the monitor script has been written. I am currently testing it. This new version is much lighter, simpler, and more effective.
+  1- A new version of the monitor script has been written. I am currently testing it. This new version is much lighter, simpler, and more effective. *updated 2024-11-3*
   
   2- An actually functioning version of an install script is also in the works. The new version is almost a complete re-write. I'm working to make the process flow in a logical and efficient manner.
   
   3- Updated vesions of the config files have already been uploaded. Instead of lots of processing to filter and add/remove lines from a single universal config.yaml, I have opted for 3 separate versions to fit the 3 possibilities I have had success with in my setups. We would use one for each interface and each would simply be updated with 1 or 2 sed commands and be done. I may add a config-ap.yaml if I ever want to try making this a wifi access point as well. That would only be for specific use cases though, so would not likely be any time soon. I am a bit of a completist though, so I may do it just for completeness. We'll see.
+
+As of 2024-11-03:
+
+  1- Updated service and monitor script.
+
+  2- Install script seems to be ready for deb based systems. Testing on rpm systems now.
 
 ***Updated check-connection.sh has been uploaded*** There is no need to change the service file. Simply replace the old script with the new one and restart the service.
 
