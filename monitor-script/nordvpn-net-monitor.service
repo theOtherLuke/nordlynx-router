@@ -1,6 +1,6 @@
 [Unit]
 Description=NordVPN Network Connection Monitor
-After=nordvpnd.target
+Requires=network.target
 
 [Service]
 ExecStart=/root/check-connection.sh
