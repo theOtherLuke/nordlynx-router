@@ -79,7 +79,7 @@ for (( i = 1; i <= $#; i++ )) ; do # we start at 1 because 0 is the script locat
 done
 test_country=$(echo "$country" | sed -r 's/_/ /')
 echo "Selected country : $test_country"
-wan_interface=wlp1s0
+wan_interface=wan_iface
 wan_is_static=$false
 logfile="/var/log/nordvpn/monitor.log"
 connected=$false
