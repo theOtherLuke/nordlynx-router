@@ -84,6 +84,7 @@ wan_is_static=$false
 logfile="/var/log/nordvpn/monitor.log"
 connected=$false
 post_quantum=$false
+p2p=$false
 mv $logfile $logfile.old
 npid=
 
@@ -93,7 +94,7 @@ npid=
 # If previously connected and loses connection, will disconnect nordvpn.
 # Always returns $true because it loops until it is $true.
 check-wan() {
-	if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] We are using $wan_interface for WAN. Checking connection..." | tee -a $logfile ; fi
+	[ $verbose == $true ] && echo "[ $(date) ] We are using $wan_interface for WAN. Checking connection..." | tee -a $logfile
 	if [[ $wan_interface =~ ^([w][lp|lan|lo]) ]] ; then
 		while ! ip a | grep $wan_interface &> /dev/null ; do
 			sleep 3
@@ -140,8 +141,8 @@ check-vpn() {
 	server=$(echo "$vpn_status" | grep Server)
 	if [[ "$vpn_status" =~ "Connected" ]]; then
 		if [[ "$vpn_status" =~ "$test_country" ]]; then
-			if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] NordVPN is connected to preferred country: $test_country" | tee -a $logfile ; fi
-			if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] NordVPN is connected to $server" | tee -a $logfile ; fi
+			[ $verbose == $true ] && echo "[ $(date) ] NordVPN is connected to preferred country: $test_country" | tee -a $logfile
+			[ $verbose == $true ] && echo "[ $(date) ] NordVPN is connected to $server" | tee -a $logfile
 			return $true
 		else
 			return $false
@@ -192,10 +193,13 @@ connect-vpn() {
 #   connect <options>
 connect() {
 	args=$@
+	if [[ $p2p == "$true" ]] ; then
+		args=$args" p2p"
+	fi
 	nordvpn c $args &
 	sleep 7
 	while jobs -l | grep Running &> /dev/null ; do
-		jobs -p | xargs kill -INT &> /dev/null
+		jobs -p | xargs kill -INT &> /dev/null && echo -e "[ $(date) ] Connection attempt aborted" | tee -a $logfile
 	done
 }
 
@@ -252,9 +256,9 @@ maintain() {
 			echo "[ $(date) ] VPN is active." | tee -a $logfile
 			sleep 10
 			while check-wan ; do
-				if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] WAN is connected" | tee -a $logfile ; fi
+				[ $verbose == $true ] && echo "[ $(date) ] WAN is connected" | tee -a $logfile
 				if check-vpn ; then
-					if [[ "$verbose" == "$true" ]] ; then echo "[ $(date) ] VPN is active." | tee -a $logfile ; fi
+					[ $verbose == $true ] && echo "[ $(date) ] VPN is active." | tee -a $logfile
 					sleep 10
 				else
 					break # send it back to the outer loop
