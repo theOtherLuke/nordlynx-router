@@ -55,33 +55,47 @@ false=1
 verbose=$false
 exit_on_bad_country_code=$false # change this to $true if you want to exit on invalid country code
 country="United_States"
-for (( i = 1; i <= $#; i++ )) ; do # we start at 1 because 0 is the script location or shell name, depending on how we ran the script
-	case "${!i}" in
-		-v) verbose=$true ;;
-		-c) # country
-			j=$((i+1))
-			!j="${!j,,}"
-			country="${!j,,}" # make it lowercase
-			case "$country" in
-				us|"united states"|united_states) country="United_States" ;;
-				ca|canada) country="Canada" ;; # Ohhhh Caaanadaaaa...jk, I Love my northern neighbors, eh!
-				fr|france) country="France" ;; # Wi wi!
-				es|spain) country="Spain" ;;
-				uk|gb|"united kingdom"|united_kingdom) country="United_Kingdom" ;;
-				bz|belize) country="Belize" ;;
-				mx|mexico) country="Mexico" ;; # ¡Orale!...¡También quiero a mis vecinos del sur!
-				# etc.
-				*) echo -e "[ $(date) ] Country not in script listing : ${!j}, but we're still gonna try!" | tee -a $logfile ; country="${!j}" ;;
-			esac
-			;;
-		*) echo "Ignoring unknown argument: ${!i}" ;;
-	esac
+verbose=$false
+while (( "$#" )); do
+  case "$1" in
+    -v)
+      verbose=$true
+      shift
+      ;;
+    -c)
+      if [[ -n "$2" ]]; then
+        country="${2,,}" # Convert to lowercase
+        case "$country" in
+          us|united_states) country="United_States" ;;
+          ca|canada) country="Canada" ;; # Ohhhh Caaanadaaaa...jk, I Love my northern neighbors, eh!
+          fr|france) country="France" ;; # Wi wi!
+          es|spain) country="Spain" ;;
+          uk|gb|united_kingdom) country="United_Kingdom" ;;
+          bz|belize) country="Belize" ;;
+          mx|mexico) country="Mexico" ;; # ¡Orale!...¡También quiero a mis vecinos del sur!
+          *)
+            echo "[ $(date) ] Country not in script listing: $country, but we're still gonna try!"
+            ;;
+        esac
+        shift 2
+      else
+        echo "Error: -c requires a country argument" >&2
+        exit 1
+      fi
+      ;;
+    *)
+      echo "Ignoring unknown argument: $1"
+      shift
+      ;;
+  esac
 done
+
 test_country=$(echo "$country" | sed -r 's/_/ /')
 echo "Selected country : $test_country"
 wan_interface=wan_iface
 wan_is_static=$false
 logfile="/var/log/nordvpn/monitor.log"
+mkdir -p "$(dirname "$logfile")"
 connected=$false
 post_quantum=$false
 p2p=$false
