@@ -3,6 +3,12 @@
 
 ## Script and service to monitor and manage NordVPN connection
 
+NOTE: NordVPN's auto-connect feature will conflict with this script and needs to be disabled. 
+
+```
+nordvpn set autoconnect off
+```
+
 ## check-connection.sh
 
 This script has been rewritten almost from scratch. The changes address some issues I noticed in the initial version. This new version should be more efficient and robust.
