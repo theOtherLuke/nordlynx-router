@@ -222,7 +222,7 @@ connect-vpn() {
 # usage:
 #   connect <options>
 connect() {
-    args=#@
+    args=$@
 	nordvpn c "$args" &
 	sleep 7
     jobs -p | xargs kill -INT &> /dev/null
