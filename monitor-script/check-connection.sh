@@ -41,7 +41,7 @@ cleanup() {
 trap cleanup EXIT INT SIGINT
 
 ######################################################################
-# check-connection v.2
+# check-connection v.2.2.1
 #
 # For more verbosity, add '-v' to the command call:
 #       '/path/to/check-connection.sh -v'
@@ -64,6 +64,9 @@ wan_is_static=$false
 exit_on_bad_country_code=$false # change this to $true if you want to exit on invalid country code
 country=pref_country
 connected=$false
+# I monitor my gateways over a seperate interface
+kill_monitor_on_loss=$true
+monitor_interface=eth81
 
 while (( "$#" )); do
     case "$1" in
@@ -182,47 +185,47 @@ check-vpn() {
 }
 
 connect-vpn() {
-    while :; do
+	while :; do
         if [[ "$post_quantum" == "$true" ]] ; then
             # an unknown issue with post-quantum prevents reconnecting. Disabling and re-enabling the feature seems to help
             nordvpn set post-quantum off &> /dev/null
             sleep 5
             nordvpn set post-quantum on &> /dev/null
         fi
-        echo "[ $(date) ] Connecting to NordVPN: $test_country" | tee -a $logfile
-        while read -r result ; do # read and process output from fd 3
-            echo -e "[ $(date) ] $result" | tee -a $logfile
-            if [[ "$result" =~ (aborted|canceled) ]] ; then
-                sleep 8 # waiting to try connect again
-                check-wan
-            elif [[ "$result" =~ (You are connected) ]] ; then
-                connected=$true
-                return $true
-            elif [[ "$result" =~ (does not exist) ]] ; then
-                if [[ "$exit_on_bad_country_code" == "$true" ]] ; then
-                    echo -e "[ $(date) ] Invalid country code specified: $country\n\tStopping nordvpn-net-monitor.service and exiting..." | tee -a $logfile
-                    systemctl stop nordvpn-net-monitor.service
-                    exit 4
-                else
-                    echo -e "[ $(date) ] Invalid country code specified: $country\n\tSetting to auto-select country..." | tee -a $logfile
-                    country=''
-                    sleep 3
-                fi
-            elif [[ "$result" =~ (already in progress) ]] ; then
-                while jobs -l | grep Running &> /dev/null ; do
-                    jobs -p | xargs kill -INT &> /dev/null
-                done
-                return $false
-            fi
-        done < <(connect "$country")
-    done
+		echo "[ $(date) ] Connecting to NordVPN: $test_country" | tee -a $logfile
+		while read -r result ; do # read and process output from fd 3
+			echo -e "[ $(date) ] $result" | tee -a $logfile
+			if [[ "$result" =~ (aborted|canceled) ]] ; then
+				sleep 8 # waiting to try connect again
+				check-wan
+			elif [[ "$result" =~ (You are connected) ]] ; then
+				connected=$true
+				return $true
+			elif [[ "$result" =~ (does not exist) ]] ; then
+				if [[ "$exit_on_bad_country_code" == "$true" ]] ; then
+					echo -e "[ $(date) ] Invalid country code specified: $country\n\tStopping nordvpn-net-monitor.service and exiting..." | tee -a $logfile
+					systemctl stop nordvpn-net-monitor.service
+					exit 4
+				else
+					echo -e "[ $(date) ] Invalid country code specified: $country\n\tSetting to auto-select country..." | tee -a $logfile
+					country=''
+					sleep 3
+				fi
+			elif [[ "$result" =~ (already in progress) ]] ; then
+				while jobs -l | grep Running &> /dev/null ; do
+					jobs -p | xargs kill -INT &> /dev/null
+				done
+				return $false
+			fi
+		done < <(connect "$country")
+	done
 }
 
 # makes 1 attempt to connect to nordvpn. try to kill attempt after timeout
 # usage:
 #   connect <options>
 connect() {
-    args=$@
+    args=$*
     nordvpn c "$args" &
     sleep 7
     jobs -p | xargs kill -INT &> /dev/null
@@ -230,6 +233,14 @@ connect() {
 
 disconnect() {
     nordvpn d &> /dev/null
+    [ $kill_monitor_on_loss == $true ] && monitor-updown down
+}
+
+monitor-updown() {
+    case "$1" in
+        up|down) ip link set dev "$monitor_interface" "$1" ;;
+        *) ;;
+    esac
 }
 
 check-connectivity() {
@@ -285,6 +296,7 @@ maintain() {
                     [ $verbose == $true ] && echo "[ $(date) ] WAN is connected" | tee -a $logfile
                     if check-vpn ; then
                         [ $verbose == $true ] && echo "[ $(date) ] VPN is active." | tee -a $logfile
+                        monitor-updown up
                         sleep 10
                     else
                         break # send it back to the outer loop
