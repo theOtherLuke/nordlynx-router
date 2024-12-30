@@ -152,9 +152,9 @@ Change settings using `nordvpn set <setting> [on|off]`
 
 Routing ***must*** be enabled to pass traffic from LAN `nordvpn set routing on`
 
-It appears that lan-discovery needs to be enabled as well `nordvpn set lan-discovery on`
+It appears that lan-discovery *may* need to be enabled as well `nordvpn set lan-discovery on`
 
-This is also where you configure auto connect `nordvpn set auto-connect on`
+This is also where you configure auto connect `nordvpn set auto-connect on`, which isn't needed if using the monitor service.
 
 Personally, I disable analytics `nordvpn set analytics off`. After all, I didn't get a VPN for privacy just to let the provider collect data.
 
