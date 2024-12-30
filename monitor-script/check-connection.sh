@@ -41,7 +41,7 @@ cleanup() {
 trap cleanup EXIT INT SIGINT
 
 ######################################################################
-# check-connection v.2.2.1
+# check-connection v.2.2.2
 #
 # For more verbosity, add '-v' to the command call:
 #       '/path/to/check-connection.sh -v'
@@ -66,6 +66,7 @@ country=pref_country
 connected=$false
 # I monitor my gateways over a seperate interface
 kill_monitor_on_loss=$true
+kill_existing_connection=$true # disable to keep existing connections when starting the script
 monitor_interface=eth81
 
 while (( "$#" )); do
@@ -154,6 +155,7 @@ check-wan() {
     else
         echo "[ $(date) ] Unknown WAN state. Exiting..." | tee -a $logfile
         ip -br a show $wan_interface | tee -a $logfile
+        [ $kill_monitor_on_loss == $true ] && monitor-updown down
         systemctl stop nordvpn-net-monitor.service
         exit 3
     fi
@@ -266,6 +268,7 @@ check-account-status() {
     nord_account="$(nordvpn account)"
     if [[ "$nord_account" =~ "not logged in" ]] ; then
         echo -e "[ $(date) ] You are not logged in. You must be logged into an active NordVPN account.\n\tExiting and stopping service..." | tee -a $logfile
+        monitor-updown down
         systemctl stop nordvpn-net-monitor.service
         exit
     elif [[ "$nord_account" =~ "Account Information" ]] ; then
@@ -299,10 +302,12 @@ maintain() {
                         monitor-updown up
                         sleep 10
                     else
+                        disconnect
                         break # send it back to the outer loop
                     fi
                 done
             else
+                disconnect
                 if ! connect-vpn ; then
                     echo "[ $(date) ] Failed to connect to vpn" | tee -a $logfile
                 fi
