@@ -12,7 +12,7 @@ BU='\e[0;34m'
 PP='\e[0;35m' #
 CY='\e[0;36m' #
 WT='\e[0;37m'
-LTBK='\e[1;30m' #
+LTBK='\e[1;30m' # gray?
 LTRD='\e[1;31m'
 LTGN='\e[1;32m' #
 LTYL='\e[1;33m' #
@@ -1060,9 +1060,11 @@ while :; do
         set_row=$((row+1))
         for nord_setting in "${nord_settings_actor[@]}" ; do
                 echo -ne "\e[""$set_row""H\e[8G$YL*$CL\e[10G\e[jSetting $nord_setting"
-		nordvpn set "$nord_setting" &> /dev/null
+		nordvpn set "${nord_setting}" # &> /dev/null ### testing
                 ((set_row++))
         done
+	sleep 5 ### testing
+        nordvpn set analytics off &> /dev/null
         sleep 2
         echo -e "\e[""$row""H\e[7G\e[JNordVPN settings applied"
         kill-spinner 0
