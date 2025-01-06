@@ -7,7 +7,7 @@ ExecStart=/root/check-connection.sh
 User=root
 Type=simple
 Restart=on-failure
-ExecStop=pkill check-connection.sh
+ExecStop=cat /root/.monitor.pid | xargs kill
 
 [Install]
 WantedBy=default.target
