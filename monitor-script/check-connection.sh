@@ -228,7 +228,7 @@ connect-vpn() {
 # usage:
 #   connect <options>
 connect() {
-    args=#@
+    args=$@
 	nordvpn c "$args" &
 	sleep $((21 + $RANDOM % 12)) # adjust wait time to suit your setup
     jobs -p | xargs kill -INT &> /dev/null
