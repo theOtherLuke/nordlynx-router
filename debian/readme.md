@@ -16,7 +16,7 @@ Machine recommendations:
 
 4GB drive ( 2GB minimum )
 
-2 network interfaces ( 1 interface minimum )
+2 network interfaces ( 1 interface minimum, requires more advanced network setup not covered here )
 
 Update Debian:
 
