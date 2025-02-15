@@ -55,14 +55,15 @@ EOF
 clear && header
 
 ### options
-## lan, wan, and logfile are defined in connect-nord.conf. define your settings there
-## or comment the source call and uncomment lan, wan, and logfile to define them here
+## lan, wan, logfile, and connect_options are defined in connect-nord.conf. define your settings there
+## or comment the source call and uncomment lan, wan, logfile, and connect_options to define them here
+## I added the .conf file to simplify changing settings
 source ./connect-nord.conf
 #lan=eth21
 #wan=eth0
 #logfile="/var/log/nordvpn/monitor.log"
+#connect_options="us"
 
-connect_options="us"
 ### constants
 true=0
 false=1
