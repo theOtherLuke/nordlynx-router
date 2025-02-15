@@ -1,5 +1,5 @@
 # NordVPN Monitoring Service
-
+This continues to be a work in progress. The current version should still continue to be useful. I am continuing to work on this in my spare time, which unfortunately has not been in abundance lately. I am manually running a much simpler script from the CLI for the time being. I will post a version of that as well. As with the rest, feel free to use and modify it as you see fit.
 
 ## Script and service to monitor and manage NordVPN connection
 
