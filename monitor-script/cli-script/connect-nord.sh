@@ -114,7 +114,7 @@ while :; do
     attempts=1
     time while nordvpn status | grep Disconnected ; do
         if ip -br a show ${lan} | grep UP ; then
-            ip link set ${lan} down
+            ip link set ${lan} down # I run multiple instances, which pfsense sees as multiple wans. This disconnects the interface, otherwise pfsense doesn't recognise it as down.
         fi
         ## change the color of the attempt counter based on number of connection attempts
         if [[ ${attempts} -lt 10 ]] ; then
