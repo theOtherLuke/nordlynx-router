@@ -1,6 +1,6 @@
 # Debian Specific Setup Steps
 
-See 'old-version.txt' for original version
+See 'old-version.md' for original version
 
 **This is the "latest and greatest" version of the project**
 
