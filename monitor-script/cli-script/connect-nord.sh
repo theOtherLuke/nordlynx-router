@@ -156,7 +156,7 @@ while :; do
             a_color="${lt_rd}"
         fi
         echo -e "Attempt${a_color} [ ${attempts} ]${cl}"
-        nordvpn c "${connect_options}"
+        nordvpn c ${connect_options}
     done
     echo -e "\n\n${cy}Time elapsed :${cl}"
     }
