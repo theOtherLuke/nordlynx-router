@@ -35,6 +35,6 @@ Enable ipv4 forwarding and optionally disable ipv6 here. Disabling ipv6 does not
 Edit and place in `/etc/`
 
 ### rules.v4
-Firewall rules for iptables. All 3 `mgmt_interface` rules may be removed without issue.
+Firewall rules for iptables.
 
 Edit and place in `/etc/iptables/`
