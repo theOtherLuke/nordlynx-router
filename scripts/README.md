@@ -24,6 +24,8 @@ Minimum system requirements. Requirements for a full VM or bare-metal may be, an
 - 4GB drive(8GB recommended)
 - 2 network interfaces(WAN set to dhcp, LAN set to static)
 
+This does not install and configure the monitor script like the previous install script.
+
 **I have not tested this on a VM or bare-metal so YMMV**
 
-#### *More to come...*
+### *More to come...*
