@@ -1,5 +1,5 @@
 # CLI Script
-I use this script when I want to manage the connection from a terminal. I'm sure you could use this in place of `check-connection.sh` for use with the monitor service. I haven't tried that yet myself.
+I use this script when I want to manage the connection from a terminal. I'm sure you could use this in place of `check-connection.sh` for use with the monitor service. I haven't tried that yet myself. This script uses a separate config file `connect-nord.conf` to make changing settings easier and safer.
 
 ### connect-nord.conf
 This is the settings file for the script. Set your LAN and WAN interfaces, connection options, and logfile name and location here.
