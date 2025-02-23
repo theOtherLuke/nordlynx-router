@@ -51,10 +51,12 @@ trap cleanup EXIT INT SIGINT
 # To specify a country, either change the default in this script, or
 # add '-c <country>' to the command call:
 #       '/path/to/check-connection.sh -c <country>'
-# use -c to delare a p2p server instead of a country:
-#       '/path/to/check-connection.sh -c p2p'
-# 
-# both options may be used together
+# use -p to request a p2p server:
+#       '/path/to/check-connection.sh -p'
+# use -c <country> and -p together to specify a group requesting a p2p server in <country>
+#       '/path/to/check-connection.sh -c <country> -p'
+#
+# all options may be used together
 
 ### VARIABLES
 true=0
@@ -86,7 +88,6 @@ while (( "$#" )); do
 					uk|gb|united_kingdom) country="United_Kingdom" ;;
 					bz|belize) country="Belize" ;;
 					mx|mexico) country="Mexico" ;; # ¡Orale!...¡También quiero a mis vecinos del sur!
-					p2p) country="p2p" ;; # nordvpn will not accept p2p and country at the same time, so this is not a problem
 					*)
 						echo "[ $(date) ] Country not in script listing: $country, but we're still gonna try!"
 						;;
@@ -97,12 +98,23 @@ while (( "$#" )); do
 				exit 1
 			fi
 			;;
+                -p)
+		        group="p2p"
 		*)
 			echo "Ignoring unknown argument: $1"
 			shift
 			;;
 	esac
 done
+if [[ -n $country && -n $group ]]; then
+        country="-g ${group} ${country}"
+elif [[ -z $country && -n $group ]]; then
+        country="${group}"
+elif [[ -n $country && -z $group ]]; then
+        country="${country}"
+else
+        country=""
+fi
 
 test_country=$(echo "$country" | sed -r 's/_/ /')
 echo "Selected country : $test_country"
