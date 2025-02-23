@@ -1,9 +1,43 @@
 #!/usr/bin/env bash
+echo $$ > /root/.monitor.pid
+### constants
+true=0
+false=1
 
-echo -e '\e[?25l' # hide the cursor
+## colors
+[[ $daemonized == $true ]] && gn='' || gn='\e[0;32m'
+[[ $daemonized == $true ]] && bu='' || bu='\e[0;34m'
+[[ $daemonized == $true ]] && cy='' || cy='\e[0;36m'
+[[ $daemonized == $true ]] && lt_gn='' || lt_gn='\e[1;32m'
+[[ $daemonized == $true ]] && lt_yl='' || lt_yl='\e[1;33m'
+[[ $daemonized == $true ]] && lt_bu='' || lt_bu='\e[1;34m'
+[[ $daemonized == $true ]] && lt_cy='' || lt_cy='\e[1;36m'
+[[ $daemonized == $true ]] && lt_rd='' || lt_rd='\e[1;31m'
+[[ $daemonized == $true ]] && cl='' || cl='\e[0m'
+a_color="${cl}"
+
+## cursor options
+[[ $daemonized == $true ]] && hide='' || hide='\e[?25l'
+[[ $daemonized == $true ]] && show='' || show='\e[?25h'
+
+while getopts 'd' arg; do
+    case $arg in
+        d)
+            daemonized=$true
+            ;;
+        *)
+            echo "Unknown argument: ${arg}"
+            exit 13
+            ;;
+    esac
+done
+
+[[ $daemonized == $true ]] &&
+
+[[ $daemonized == $true ]] || echo -e "${hide}" # hide the cursor
 
 license(){
-    echo -e '\e[1;32m'
+    [[ $daemonized == $true ]] || echo -e "${lt_gn}"
     cat <<EOF
 MIT License
 
@@ -28,7 +62,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
        SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 EOF
-    echo -e '\e[0m'
+    [[ $daemonized == $true ]] || echo -e "${cl}"
 }
 
 clear && license && sleep 1
@@ -57,24 +91,8 @@ clear && header
 ### options
 ## lan, wan, logfile, and connect_options are defined in connect-nord.conf. define your settings there
 ## I added the .conf file to simplify changing settings
-source ./connect-nord.conf
+source /root/connect-nord.conf
 
-### constants
-true=0
-false=1
-
-## colors
-gn='\e[0;32m'
-bu='\e[0;34m'
-cy='\e[0;36m'
-lt_gn='\e[1;32m'
-lt_yl='\e[1;33m'
-lt_bu='\e[1;34m'
-lt_cy='\e[1;36m'
-lt_rd='\e[1;31m'
-cl='\e[0m'
-
-a_color='\e[0m'
 
 first_check=
 if nordvpn status | grep Disconnected ; then 
@@ -86,7 +104,9 @@ fi
 uptime_seconds=
 
 cleanup() {
-    echo -e '\e[?25h' # restore the cursor
+    kill "${manager_pid}"
+    echo -e "${show}${cl}" # restore the cursor
+    rm /root/.monitor.pid &> /dev/null
     exit
 }
 
@@ -137,66 +157,87 @@ get-uptime() {
 
 echo -e "${bu}LAN Interface :${lt_bu} ${lan}${cl}"
 echo -e "${bu}WAN Interface :${lt_bu} ${wan}${cl}"
-while :; do
-    attempts=0
-    time { # we're using time here to monitor how long NordVPN takes to connect
-    while nordvpn status | grep Disconnected ; do
-        ((attempts++))
-        if ip -br a show ${lan} | grep UP ; then
-            ip link set ${lan} down # I run multiple instances, which pfsense sees as multiple wans.
-                                    # This disconnects the interface, otherwise pfsense doesn't recognize it as down and
-                                    # won't fall back to another interface
+manage() {
+    while :; do
+        attempts=0
+        time { # we're using time here to monitor how long NordVPN takes to connect
+        while nordvpn status | grep Disconnected ; do
+            ((attempts++))
+            if ip -br a show ${lan} | grep UP ; then
+                ip link set ${lan} down # I run multiple instances, which pfsense sees as multiple wans.
+                                        # This disconnects the interface, otherwise pfsense doesn't recognize it as down and
+                                        # won't fall back to another interface
+            fi
+            ## change the color of the attempt counter based on number of connection attempts
+            if [[ ${attempts} -lt 10 ]] ; then
+                a_color="${lt_gn}"
+            elif [[ ${attempts} -ge 10 && ${attempts} -lt 20 ]] ; then
+                a_color="${lt_yl}"
+            elif [[ ${attempts} -ge 20 ]] ; then
+                a_color="${lt_rd}"
+            fi
+            echo -e "Attempt${a_color} [ ${attempts} ]${cl}"
+            nordvpn c ${connect_options}
+        done
+        echo -e "\n\n${cy}Time elapsed :${cl}"
+        }
+        echo
+        if [[ $first_check -eq $true ]] ; then
+            echo -e "[ $(date) ]${lt_cy} Already connected!${cl}" | tee -a ${logfile}
+            first_check=$false
+        else
+            echo -e "[ $(date) ]${bu} Connection established after${a_color} ${attempts}${bu} attempts.${cl}" | tee -a ${logfile}
         fi
-        ## change the color of the attempt counter based on number of connection attempts
-        if [[ ${attempts} -lt 10 ]] ; then
-            a_color="${lt_gn}"
-        elif [[ ${attempts} -ge 10 && ${attempts} -lt 20 ]] ; then
-            a_color="${lt_yl}"
-        elif [[ ${attempts} -ge 20 ]] ; then
-            a_color="${lt_rd}"
-        fi
-        echo -e "Attempt${a_color} [ ${attempts} ]${cl}"
-        nordvpn c ${connect_options}
+        ip link set ${lan} up
+        n_status=$(nordvpn status)
+        server=$(grep Server <<< $n_status)
+        [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Server <<< $n_status)" || echo -ne "${gn}$(grep Server <<< $n_status)${cl}"
+        [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Uptime <<< $n_status)" || echo -ne "${lt_gn}$(grep Uptime <<< $n_status)${cl}"
+        while [[ -n $server ]]; do
+            ## test connection
+            if ! check-connectivity ; then
+                echo "[ $(date) ] Connection lost." | tee -a ${logfile}
+                ### this if...elif...fi section can be commented out or removed without issue
+                ## this sends connection quality feedback to nordvpn using `nordvpn rate <n>` based on time
+                ## the connection was active. I added this because I was having trouble staying connected
+                ## and I figured they ought to know when their service is sucking.
+                if [[ $uptime_seconds -lt 300 ]] ; then # less than 5 minutes
+                    nordvpn rate 1
+                elif [[ $uptime_seconds -ge 300 && $uptime_seconds -lt 900 ]] ; then # 5-15 minutes
+                    nordvpn rate 2
+                elif [[ $uptime_seconds -ge 900 && $uptime_seconds -lt 1800 ]] ; then # 15-30 minutes
+                    nordvpn rate 3
+                elif [[ $uptime_seconds -ge 1800 ]] ; then # 30 minutes or more
+                    nordvpn rate 4
+                fi # I didn't put an entry for 5 because only 100% stable and reliable connections should be
+                   # rated 5. If it disconnects without my intervention, it's not a 5
+                nordvpn d
+                break
+            fi
+            sleep 10
+            get-uptime
+            [[ $daemonized == $true ]] && echo "[ $(date) ] ${server}" || echo -ne "${gn}\r${server}${cy}${cl}\e[K"
+            [[ $daemonized == $true ]] && echo "[ $(date) ] ${uptime}" || echo -ne "${lt_gn}\r${uptime}${cy}${cl}\e[K"
+            if ip -br a show ${lan} | grep DOWN ; then
+                ip link set ${lan} up
+            fi
+        done
     done
-    echo -e "\n\n${cy}Time elapsed :${cl}"
-    }
-    echo
-    if [[ $first_check -eq $true ]] ; then
-        echo -e "[ $(date) ]${lt_cy} Already connected!${cl}" | tee -a ${logfile}
-        first_check=$false
-    else
-        echo -e "[ $(date) ]${bu} Connection established after${a_color} ${attempts}${bu} attempts.${cl}" | tee -a ${logfile}
-    fi
-    ip link set dev ${lan} up
-    n_status=$(nordvpn status)
-    echo -e "${gn}$(grep Server <<< $n_status)${cl}"
-    echo -ne "${lt_gn}$(grep Uptime <<< $n_status)${cl}"
-    while nordvpn status | grep Server &> /dev/null ; do
-        ## test connection
-        if ! check-connectivity ; then
-            echo "[ $(date) ] Connection lost." | tee -a ${logfile}
-            ### this if...elif...fi section can be commented out or removed without issue
-            ## this sends connection quality feedback to nordvpn using `nordvpn rate <n>` based on time
-            ## the connection was active. I added this because I was having trouble staying connected
-            ## and I figured they ought to know when their service is sucking.
-            if [[ $uptime_seconds -lt 300 ]] ; then # less than 5 minutes
-                nordvpn rate 1
-            elif [[ $uptime_seconds -ge 300 && $uptime_seconds -lt 900 ]] ; then # 5-15 minutes
-                nordvpn rate 2
-            elif [[ $uptime_seconds -ge 900 && $uptime_seconds -lt 1800 ]] ; then # 15-30 minutes
-                nordvpn rate 3
-            elif [[ $uptime_seconds -ge 1800 ]] ; then # 30 minutes or more
-                nordvpn rate 4
-            fi # I didn't put an entry for 5 because only 100% stable and reliable connections should be
-               # rated 5. If it disconnects without my intervention, it's not a 5
-            nordvpn d
-            break
-        fi
-        sleep 10
-        get-uptime
-        echo -ne "${lt_gn}\r${uptime}${cy}${cl}\e[K"
-        if ip -br a show ${lan} | grep DOWN ; then
-            ip link set ${lan} up
-        fi
+}
+
+trap-keyboard() {
+    while :; do
+        read -srn1 result
+        result="${result,,}"
+        case "$result" in
+            q)
+                echo
+                echo "Exiting..."
+                exit
+                ;;
+            *) ;;
+        esac
     done
-done
+}
+manage & manager_pid="$!"
+trap-keyboard
