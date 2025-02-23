@@ -30,6 +30,8 @@ The location can be changed. Just make sure to change the location in the .servi
   
     -c country : set country to connect in
 
+    -p : use a p2p server
+
   Run `nordvpn countries` for a list of countries in which they have servers.
 
   These options can be used when calling inside nordvpn-net-monitor.service as well.
