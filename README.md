@@ -10,7 +10,7 @@ I have been doing *a lot* of studying. I'm doing my best to learn and better und
 The install script has been rewritten and only *officially* supports debian 12 in an lxc container, but *should* work on debian derivatives, VMs and bare-metal. See the link below.
 
 Some other new scripts have been uploaded as well:
-- **connect-nord.sh** (together with connect-nord.conf) is a cli script for connecting and maitaining the connection. Should be able to use it with the monitor service in place of check-connection.sh.
+- **connect-nord.sh** (together with connect-nord.conf) is a cli script for connecting and maintaining the connection. You can use it with the monitor service in place of check-connection.sh.
 - **nord-settings.sh** makes applying your nord settings easier.
 - **nord-login.sh** makes logging in to NordVPN easier. You still need copy-paste functionality for this.
 
