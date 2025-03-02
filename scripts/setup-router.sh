@@ -233,6 +233,16 @@ EOF
 
 get-files() {
 ## acquire config files
+    get_service_file_msg=$([[ $not_nord == $false ]] && echo "Getting /etc/systemd/system/nordvpn-net-monitor.service" || echo "")
+    service_file=$([[ $not_nord == $false ]] && echo "/etc/systemd/system/nordvpn-net-monitor.service" || echo "")
+    service_file_url=$([[ $not_nord == $false ]] && echo "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/nordvpn-net-monitor.service" || echo "")
+    get_service_script_msg=$([[ $not_nord == $false ]] && echo "Getting /root/connect-nord.sh" || echo "")
+    service_script=$([[ $not_nord == $false ]] && echo "/root/connect-nord.sh" || echo "")
+    service_script_url=$([[ $not_nord == $false ]] && echo "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/cli-script/connect-nord.sh" || echo "")
+    get_script_conf_file_msg=$([[ $not_nord == $false ]] && echo "Getting /root/connect-nord.sh" || echo "")
+    script_conf=$([[ $not_nord == $false ]] && echo "/root/connect-nord.sh" || echo "")
+    script_conf_url=$([[ $not_nord == $false ]] && echo "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/cli-script/connect-nord.sh" || echo "")
+
     files_list=(
 #       pct  message                                local filename                 file url
         0   "Getting /etc/netplan/config-wan.yaml" "/etc/netplan/config-wan.yaml" "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/config-files/config-dhcp.yaml"
@@ -244,36 +254,44 @@ get-files() {
         60  "Getting /etc/dnsmasq.conf"            "/etc/dnsmasq.conf"            "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/config-files/dnsmasq.conf"
         65  "" "" "" 70 "" "" "" 75 "" "" ""
         80  "Getting /etc/sysctl.conf"             "/etc/sysctl.conf"             "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/config-files/sysctl.conf"
-        85  "" "" "" 90 "" "" "" 95 "" "" ""
+        85  "${get_service_file_msg}"              "${service_file}"              "${service_file_url}"
+        90  "${get_service_script_msg}"            "${service_script}"            "${service_script_url}"
+        95  "${get_script_conf_file_msg}"          "${script_conf}"               "${script_conf_url}"
         100 "All files retrieved!"                 ""                             ""
     )
     for ((i=0;i<${#files_list[@]};i+=4)); do
-        if [[ -n ${files_list[$((i+1))]} ]]; then
-            echo -e "XXX\n${files_list[$i]}\n${files_list[$((i+1))]}\nXXX"
-            wget -qO "${files_list[$((i+2))]}" "${files_list[$((i+3))]}"
-        else
-            echo ${files_list[$i]}
+        echo -e "XXX\n${files_list[$i]}\n${files_list[$((i+1))]}\nXXX"
+        if [[ -n ${files_list[$((i+2))]} ]]; then
+            wget -qO "${files_list[$((i+2))]}" "${files_list[$((i+3))]}" || {
+                whiptail --msgbox "Error retreiving ${files_list[$((i+3))]}" 0 0
+                exit
+            }
         fi
     done| whiptail --title "$wt_title" --gauge "Fetching configuration files..." 6 60 0
-    whiptail --title "${wt_title}" --infobox "Files retrieved!" 7 60
     sleep 1
 }
 
 write-files() {
+    service_msg=$([[ $not_nord == $false ]] && echo "Writing /etc/systemd/system/nordvpn-net-monitor.service" || echo "")
+    service_pattern=$([[ $not_nord == $false ]] && echo "check-connection.sh" || echo "")
+    service_replace=$([[ $not_nord == $false ]] && echo "connect-nord.sh -d" || echo "")
+    service_file=$([[ $not_nord == $false ]] && echo "/etc/systemd/system/nordvpn-net-monitor.service" || echo "")
+
     file_configs=(
 #       pct  message                                             pattern         replacement      file
-        0   "Writing /etc/netplan/config-lan.yaml"              "net_interface" "$lan_interface" "/etc/netplan/config-lan.yaml"
-        12  ""                                                  "ip_address"    "$lan_address"   "/etc/netplan/config-lan.yaml"
-        25  "Writing /etc/netplan/config-wan.yaml"              "net_interface" "$wan_interface" "/etc/netplan/config-wan.yaml"
-        37  "Writing /etc/iptables/rules.v4"                    "lan_interface" "$lan_interface" "/etc/iptables/rules.v4"
-        41  ""                                                  "nordlynx"      "$wan_interface" "/etc/iptables/rules.v4"
-        42  "The answer to life, the universe, and everything!" ""              ""               ""
-        43  "Writing /etc/iptables/rules.v4"                    ""              ""               ""
-        50  "Writing /etc/dnsmasq.conf"                         "lan_interface" "$lan_interface" "/etc/dnsmasq.conf"
-        62  ""                                                  "dhcp_start"    "$dhcp_start"    "/etc/dnsmasq.conf"
-        75  ""                                                  "dhcp_end"      "$dhcp_end"      "/etc/dnsmasq.conf"
-        88  ""                                                  "dhcp_lease"    "$dhcp_lease"    "/etc/dnsmasq.conf"
-        100 "Done writing files!"                               "" "" ""
+        0   "Writing /etc/netplan/config-lan.yaml"              "net_interface"      "$lan_interface"      "/etc/netplan/config-lan.yaml"
+        12  ""                                                  "ip_address"          "$lan_address"       "/etc/netplan/config-lan.yaml"
+        25  "Writing /etc/netplan/config-wan.yaml"              "net_interface"       "$wan_interface"     "/etc/netplan/config-wan.yaml"
+        37  "Writing /etc/iptables/rules.v4"                    "lan_interface"       "$lan_interface"     "/etc/iptables/rules.v4"
+        41  ""                                                  "nordlynx"            "$wan_interface"     "/etc/iptables/rules.v4"
+        42  "The answer to life, the universe, and everything!" ""                    ""                   ""
+        43  ""                                                  ""                    ""                   ""
+        50  "Writing /etc/dnsmasq.conf"                         "lan_interface"       "$lan_interface"     "/etc/dnsmasq.conf"
+        62  ""                                                  "dhcp_start"          "$dhcp_start"        "/etc/dnsmasq.conf"
+        75  ""                                                  "dhcp_end"            "$dhcp_end"          "/etc/dnsmasq.conf"
+        88  ""                                                  "dhcp_lease"          "$dhcp_lease"        "/etc/dnsmasq.conf"
+        90  "${service_msg}"                                    "${service_pattern}"  "${service_replace}" "${service_file}"
+        100 "Done writing files!"                               ""                    ""                   ""
     )
     for ((i=0;i<${#file_configs[@]};i+=5)); do
         percent=${file_configs[$i]}
@@ -291,12 +309,15 @@ write-files() {
             if [[ $pattern =~ (nordlynx) && $not_nord == $false ]]; then
                 : # skip this substitution
             else
-                sed -i "s/$pattern/$replace/g" $filename
+                sed -i "s/$pattern/$replace/g" $filename || {
+                whiptail --msgbox "Error writing ${filename}" 0 0
+                exit
+            }
             fi
         fi
     done| whiptail --title "${wt_title}" --gauge "Writing files..." 6 60 0
-    whiptail --title "${wt_title}" --infobox "Files have been written" 7 60
     sleep 1
+    chmod 600 /etc/netplan/*.yaml
 }
 
 restart-services() {
@@ -344,7 +365,7 @@ apply-nord-settings() {
 perform-nord-installation() {
     {
         echo -e "XXX\n0\nDownloading and running NordVPN install script...\nXXX"
-        bash < <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh) -s -- -n &
+        bash < <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh) -s -- -n &> /dev/null &
         job_pid=$!
         # in reality this usually takes longer than the timed steps here. These steps are just for eye candy
         echo 10
@@ -363,12 +384,12 @@ perform-nord-installation() {
         sleep .5
         echo 80
         sleep .5
-        echo 90
         while ps -p $job_pid &> /dev/null; do
             # hang out here until the install script is done
+            echo 90
             sleep .5
         done
-        wait $job_pid
+        wait $job_pid &> /dev/null
         if [[ $? == 0 ]]; then
             echo -e "XXX\n100\nNordVPN installed\nXXX"
             sleep .5
@@ -416,10 +437,13 @@ whiptail --title "${wt_title}" --infobox "${license}" 0 0
 sleep 1
 
 ### consent to proceed
-wt_prompt="This will setup this system as a router, wither simple or for NordVPN. The installation
-process will install the following packages: iptables-persistent dnsmasq dnsmasq-utils netplan.io
+wt_prompt="This will setup this system as a router, either simple or for NordVPN. The installation
+process will install the following packages if not already installed:
 
-This will also install ipcalc if not already installed
+       iptables-persistent dnsmasq dnsmasq-utils netplan.io ipcalc openvswitch-switch
+
+openvswitch-switch is not strictly needed. It is only installed to silence a non-critical
+netplan warning. You may safely remove the package after this setup completes.
 
 Do you wish to proceed?"
 if ! whiptail --title "${wt_title}" --yesno "${wt_prompt}" 0 0 0 3>&1 1>&2 2>&3; then
@@ -428,18 +452,12 @@ fi
 
 ### install packages
 clear
+echo -e "\e[1;32mINSTALLING REQUIRED PACKAGES...\e[0m"
 if apt update && apt upgrade -y;then
-    if ! apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils -y; then
+    if ! apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils ipcalc -y; then
         whiptail --title "${wt_title}" --msgbox "Error installing packages. Check your
 configuration and try again." 0 0
         exit
-    fi
-    if ! which ipcalc; then
-        if ! apt install ipcalc -y; then
-            whiptail --title "${wt_title}" --msgbox "Error installing ipcalc. Check your
-configuration and try again." 0 0
-        exit
-        fi
     fi
 else
     whiptail --title "${wt_title}" --msgbox "Error installing packages. Check your
