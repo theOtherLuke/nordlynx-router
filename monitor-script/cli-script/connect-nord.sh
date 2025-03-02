@@ -102,6 +102,7 @@ else
 fi
 
 uptime_seconds=
+uptime=
 
 cleanup() {
     kill "${manager_pid}"
@@ -193,10 +194,10 @@ manage() {
         server=$(grep Server <<< $n_status)
         [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Server <<< $n_status)" || echo -ne "${gn}$(grep Server <<< $n_status)${cl}"
         [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Uptime <<< $n_status)" || echo -ne "${lt_gn}$(grep Uptime <<< $n_status)${cl}"
-        while [[ -n $server ]]; do
+        while :; do
             ## test connection
             if ! check-connectivity ; then
-                echo "[ $(date) ] Connection lost." | tee -a ${logfile}
+                echo "[ $(date) ] Connection lost after ${uptime}" | tee -a ${logfile}
                 ### this if...elif...fi section can be commented out or removed without issue
                 ## this sends connection quality feedback to nordvpn using `nordvpn rate <n>` based on time
                 ## the connection was active. I added this because I was having trouble staying connected
