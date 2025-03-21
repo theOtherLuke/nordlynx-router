@@ -7,7 +7,7 @@ ExecStart=/root/connect-nord.sh -d
 User=root
 Type=simple
 Restart=on-failure
-cat /root/.monitor.pid | xargs -I{} kill {}
+ExecStop=cat /root/.monitor.pid | xargs -I{} kill {}
 
 [Install]
 WantedBy=default.target
