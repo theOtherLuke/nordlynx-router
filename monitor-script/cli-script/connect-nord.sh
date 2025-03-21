@@ -4,6 +4,19 @@ echo $$ > /root/.monitor.pid
 true=0
 false=1
 
+daemonized=$false
+while getopts 'd' arg; do
+    case $arg in
+        d)
+            daemonized=$true
+            ;;
+        *)
+            echo "Unknown argument: ${arg}"
+            exit 13
+            ;;
+    esac
+done
+
 ## colors
 [[ $daemonized == $true ]] && gn='' || gn='\e[0;32m'
 [[ $daemonized == $true ]] && bu='' || bu='\e[0;34m'
@@ -19,18 +32,6 @@ a_color="${cl}"
 ## cursor options
 [[ $daemonized == $true ]] && hide='' || hide='\e[?25l'
 [[ $daemonized == $true ]] && show='' || show='\e[?25h'
-
-while getopts 'd' arg; do
-    case $arg in
-        d)
-            daemonized=$true
-            ;;
-        *)
-            echo "Unknown argument: ${arg}"
-            exit 13
-            ;;
-    esac
-done
 
 [[ $daemonized == $true ]] &&
 
