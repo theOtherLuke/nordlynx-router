@@ -18,6 +18,8 @@ Then run it like you would any other script...
 ```
 ./connect-nord.sh
 ```
+Press 'q' to exit the script.
+
 ...or from a service
 ```
 ...
@@ -38,3 +40,16 @@ then enable it...
 systemctl daemon-reload
 systemctl enable --now nordvpn-net-monitor-service
 ```
+
+### monitor.sh
+This script simply runs from the cli and displays the current state of the connection and settings. This does not affect the connection in any way.
+
+Don't forget to make it executable...
+```
+sudo chmod +x connect-nord.sh
+```
+Then run it...
+```
+./monitor.sh
+```
+Press 'q' to exit the script.
