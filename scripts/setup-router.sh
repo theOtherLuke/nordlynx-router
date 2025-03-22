@@ -107,19 +107,21 @@ get-octet() {
 
 get-wan-interface() {
     while :; do
-        wt_prompt="Select the WAN interface."
-        wan_interface=$(whiptail --title "${wt_title}" --radiolist "${wt_prompt}" 0 50 0 "${n_interface_prompt[@]}" 3>&1 1>&2 2>&3)
+        wt_prompt="Select the WAN interface"
+        wan_interface=$(whiptail --title "${wt_title}" --menu "${wt_prompt}" 0 50 0 "${n_interface_prompt[@]}" 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
-            for (( i=0; i<${#n_interface_prompt[@]}; i+=3 )); do
+            for (( i=0; i<${#n_interface_prompt[@]}; i+=2 )); do
                 if [[ ${n_interface_prompt[$i]} =~ $wan_interface ]]; then
                     if [[ ${n_interface_prompt[$i]} =~ (LAN) ]]; then
                         lan_interface=""
                     fi
                     n_interface_prompt[$((i+1))]="WAN"
-                    return
+                elif [[ ! ${n_interface_prompt[$i]} =~ $lan_interface ]]; then
+                    n_interface_prompt[(($i+1))]=""
                 fi
             done
+            return
         else
             exit
         fi
@@ -128,19 +130,21 @@ get-wan-interface() {
 
 get-lan-interface() {
     while :; do
-        wt_prompt="Select the LAN interface."
-        lan_interface=$(whiptail --title "${wt_title}" --radiolist "${wt_prompt}" 0 50 0 "${n_interface_prompt[@]}" 3>&1 1>&2 2>&3)
+        wt_prompt="Select the LAN interface"
+        lan_interface=$(whiptail --title "${wt_title}" --menu "${wt_prompt}" 0 50 0 "${n_interface_prompt[@]}" 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
-            for (( i=0; i<${#n_interface_prompt[@]}; i+=3 )); do
+            for (( i=0; i<${#n_interface_prompt[@]}; i+= )); do
                 if [[ ${n_interface_prompt[$i]} =~ $lan_interface ]]; then
                     if [[ ${n_interface_prompt[$i]} =~ (WAN) ]]; then
                         wan_interface=""
                     fi
                     n_interface_prompt[$((i+1))]="LAN"
-                    return
+                elif [[ ! ${n_interface_prompt[$i]} =~ $wan_interface ]]; then
+                    n_interface_prompt[(($i+1))]=""
                 fi
             done
+            return
         else
             exit
         fi
@@ -150,7 +154,7 @@ get-lan-interface() {
 get-lan-address() {
     while :; do
         wt_prompt="Enter ipv4 address for LAN.(no cidr)"
-        lan_address=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 3>&1 1>&2 2>&3)
+        lan_address=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 "172.16.0.1" 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
             if test-ip "$lan_address" ; then
@@ -164,13 +168,11 @@ get-lan-address() {
     done
 }
 
-
-
 get-dhcp-start() {
     sn_lan=$(get-subnet "$lan_address")
     while :; do
         wt_prompt="Enter starting dhcp pool ipv4 address."
-        dhcp_start=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 3>&1 1>&2 2>&3)
+        dhcp_start=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 "${sn_lan}." 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
             sn_dhcp_start=$(get-subnet "$dhcp_start")
@@ -189,7 +191,7 @@ get-dhcp-end() {
     sn_lan=$(get-subnet "$lan_address")
     while :; do
         wt_prompt="Enter ending dhcp pool ipv4 address."
-        dhcp_end=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 3>&1 1>&2 2>&3)
+        dhcp_end=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 "${sn_lan}." 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
             sn_dhcp_end=$(get-subnet "$dhcp_end")
@@ -208,7 +210,7 @@ get-dhcp-lease() {
     while :; do
         wt_prompt="Enter dhcp lease time.
 Valid format: 1-999999[h|m|s]"
-        dhcp_lease=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 3>&1 1>&2 2>&3)
+        dhcp_lease=$(whiptail --title "${wt_title}" --inputbox "${wt_prompt}" 0 50 "12h" 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
             if [[ $dhcp_lease =~ ^([1-9][0-9]*[h|m|s])$ ]]; then #first digit [1-9], followed by unlimited [0-9] digits, ends with h, m, or s
@@ -406,13 +408,15 @@ perform-nord-installation() {
         fi
     }| whiptail --title "${wt_title}" --gauge "Installing NordVPN" 0 60 0
 }
+
 login-nord() {
     n_login_url=
     while :; do
         read -ra n_redirect_url < <(nordvpn login)
         if [[ ${n_redirect_url[*]} =~ (You are already logged in) ]]; then
-            echo -e "\e[1;32mYou are already logged in.\e[0m"
-            whiptail --title "${wt_title}" --infobox "You are already logged in." 0 0
+            whiptail --title "${wt_title}" --infobox "You are already logged in." 7 0
+            sleep 1
+            return $true
         fi
         if [[ ${n_redirect_url[-1]} =~ (login-redirect) ]]; then
             n_login_url="${n_redirect_url[-1]}"
@@ -450,6 +454,17 @@ configure-monitor-service() {
         groups+=("$g" "")
     done
     if whiptail --title "${wt_title}" --yesno "Do you want to set connection options, such as country or p2p?" 0 0; then
+        wt_prompt=$(cat <<EOF
+Not all group and country options are compatible with each other. Checking
+compatibility is beyond the scope of this script. You are responsible for
+confirming compatibility using the NordVPN documentation. If you encounter
+issues, change the connect_options in /root/connect-nord.conf to :
+
+                connect_options=""
+
+EOF
+        )
+        whiptail --title "${wt_title}" --msgbox "${wt_prompt}" 0 0
         while :; do
             connect_options_prompt=("Country" "${country}")
             connect_options_prompt+=("Group" "${group}")
@@ -561,7 +576,7 @@ sys_interfaces=$(ls /sys/class/net)
 for interface in $sys_interfaces; do
         if [[ $interface =~ ^([e][no|th|np|ns]) ]]; then
                 n_interfaces+=("$interface")
-                n_interface_pool["$interface"]="."
+                n_interface_pool["$interface"]=""
         fi
 done
 
@@ -574,7 +589,7 @@ Check your setup and try again."
 else
 
     for i in "${!n_interface_pool[@]}"; do
-        n_interface_prompt+=("$i" "${n_interface_pool[$i]}" OFF)
+        n_interface_prompt+=("$i" "${n_interface_pool[$i]}")
     done
 fi
 ### get user input
@@ -601,16 +616,18 @@ elif [[ $router_type =~ (nord) ]]; then
     sleep 2
 fi
 while :; do
-    while :; do # interface assignments
-        get-wan-interface
-        if [[ -n $lan_interface && -n $wan_interface && $wan_interface != $lan_interface ]]; then
-            break
-        fi
-        get-lan-interface
-        if [[ -n $lan_interface && -n $wan_interface && $wan_interface != $lan_interface ]]; then
-            break
-        fi
-    done # interface assignment
+
+while :; do
+    get-wan-interface
+    if [[ -n $lan_interface && -n $wan_interface && $wan_interface != $lan_interface ]]; then
+        break
+    fi
+    get-lan-interface
+    if [[ -n $lan_interface && -n $wan_interface && $wan_interface != $lan_interface ]]; then
+        break
+    fi
+done
+
     while :; do # address and dhcp lease assignment
         get-lan-address
         get-dhcp-start
