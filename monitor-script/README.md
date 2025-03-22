@@ -1,5 +1,5 @@
 # NordVPN Monitoring Service
-This continues to be a work in progress. The current version should still continue to be useful. I am continuing to work on this in my spare time, which unfortunately has not been in abundance lately. I am manually running a much simpler script from the CLI for the time being. I will post a version of that as well. As with the rest, feel free to use and modify it as you see fit.
+This continues to be a work in progress. I am leaving the old service and scripts where they are for now. I have created a new service, script, config file, and install script for the new service.
 
 ## Script and service to monitor and manage NordVPN connection
 
@@ -8,7 +8,24 @@ NOTE: NordVPN's auto-connect feature will conflict with this script and needs to
 ```
 nordvpn set autoconnect off
 ```
+# NEW
+## install-monitor-service.sh
 
+This script will install the monitoring service using the new versions in the cli-script folder.
+
+Run...
+```
+bash < <(wget -qO -  https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/install-monitor-service.sh)
+```
+This script will place and configure the following files:
+```
+./cli-script/connect-nord.sh -> /root/connect-nord.sh
+./cli-script/connect-nord.conf -> /root/connect-nord.conf
+./cli-script/nordvpn-net-monitor.service -> /etc/systemd/system/nordvpn-net-monitor.service
+```
+#
+
+## *If you want to use the old service...*
 ## check-connection.sh
 
 This script has been rewritten almost from scratch. The changes address some issues I noticed in the initial version. This new version should be more efficient and robust.
