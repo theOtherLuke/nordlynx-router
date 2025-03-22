@@ -106,7 +106,7 @@ uptime_seconds=
 uptime=
 
 cleanup() {
-    [[ $daemonized == $true ]] || kill "${manager_pid}"
+    kill "${manager_pid}"
     echo -e "${show}${cl}" # restore the cursor
     rm /root/.monitor.pid &> /dev/null
     exit
@@ -248,9 +248,5 @@ trap-keyboard() {
         esac
     done
 }
-if [[ $daemonized == $true ]]; then
-    manage
-else
-    manage & manager_pid="$!"
-    trap-keyboard
-fi
+manage & manager_pid="$!"
+trap-keyboard
