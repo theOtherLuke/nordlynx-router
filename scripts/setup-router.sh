@@ -468,7 +468,7 @@ fi
 ### populate network interfaces
 sys_interfaces=$(ls /sys/class/net)
 for interface in $sys_interfaces; do
-        if [[ $interface =~ ^([e][no|th|np|ns|th]) ]]; then
+        if [[ $interface =~ ^([e][no|th|np|ns]) ]]; then
                 n_interfaces+=("$interface")
                 n_interface_pool["$interface"]="."
         fi
