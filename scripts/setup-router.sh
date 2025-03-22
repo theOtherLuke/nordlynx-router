@@ -41,6 +41,9 @@ lan_address=
 dhcp_start=
 dhcp_end=
 dhcp_lease=
+country=""
+group=""
+connect_options=
 not_nord=$false
 declare -a n_settings_query_list
 declare -A n_settings_actions_template=(
@@ -160,6 +163,8 @@ get-lan-address() {
         fi
     done
 }
+
+
 
 get-dhcp-start() {
     sn_lan=$(get-subnet "$lan_address")
@@ -432,6 +437,92 @@ login-nord() {
         return $false
     fi
 }
+
+configure-monitor-service() {
+    declare -a countries
+    countries_temp=$(nordvpn countries)
+    for c in $countries_temp; do
+        countries+=("$c" "")
+    done
+    declare -a groups
+    groups_temp=$(nordvpn groups)
+    for g in $groups_temp; do
+        groups+=("$g" "")
+    done
+    if whiptail --title "${wt_title}" --yesno "Do you want to set connection options, such as country or p2p?" 0 0; then
+        while :; do
+            connect_options_prompt=("Country" "${country}")
+            connect_options_prompt+=("Group" "${group}")
+            connect_options_prompt+=("Done" "")
+            choice=$(whiptail --title "${wt_title}" --menu "Choose an option" 0 50 0 "${connect_options_prompt[@]}" 3>&1 1>&2 2>&3)
+            exit_status=$?
+            if [[ $exit_status -eq 0 ]]; then
+                case $choice in
+                    Group)
+                        choice=$(whiptail --title "${wt_title}" --menu "Choose a group..." 0 50 0 "${groups[@]}" 3>&1 1>&2 2>&3)
+                        exit_status=$?
+                        if [[ $exit_status -eq 0 ]]; then
+                            group="$choice"
+                        fi
+                        ;;
+                    Country)
+                        choice=$(whiptail --title "${wt_title}" --menu "Choose a country..." 0 50 0 "${countries[@]}" 3>&1 1>&2 2>&3)
+                        exit_status=$?
+                        if [[ $exit_status -eq 0 ]]; then
+                            country="$choice"
+                        fi
+                        ;;
+                    Done) break ;;
+                esac
+            else
+                country=""
+                group=""
+                break
+            fi
+        done
+    fi
+    install-monitor-service | whiptail --title "${wt_title}" --gauge "Performing operations..." 6 50 0
+    whiptail --title "${wt_title}" --infobox "Service install is complete.
+
+You can change additional settings by editing
+
+          /root/connect-nord.conf
+
+
+
+" 0 50
+    sleep 1
+}
+
+install-monitor-service() {
+    echo -e "XXX\n0\nFetching /etc/systemd/system/nordvpn-net-monitor.service\nXXX"
+    wget -qO /etc/systemd/system/nordvpn-net-monitor.service https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/cli-script/nordvpn-net-monitor.service
+    echo -e "XXX\n10\nFetching /root/connect-nord.sh\nXXX"
+    wget -qO /root/connect-nord.sh https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/cli-script/connect-nord.sh
+    echo -e "XXX\n20\nFetching /root/connect-nord.conf\nXXX"
+    wget -qO /root/connect-nord.conf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/cli-script/connect-nord.conf
+    echo -e "XXX\n40\nMaking /root/connect-nord.sh executable\nXXX"
+    chmod +x /root/connect-nord.sh &> /dev/null
+    echo -e "XXX\n60\nWriting settings to /root/connect-nord.conf\nXXX"
+    sed -i "s/wan_interface/$wan_interface/g" /root/connect-nord.conf &> /dev/null
+    sed -i "s/lan_interface/$lan_interface/g" /root/connect-nord.conf &> /dev/null
+    if [[ -n $group || -n $country ]]; then
+        if [[ -n $group && -n $country ]]; then
+            connect_options="-g ${group} ${country}"
+        else
+            connect_options="${group}${country}"
+        fi
+        sed -i "s/c_options/$connect_options/g" /root/connect-nord.conf
+    else
+        sed -i "s/c_options//g" /root/connect-nord.conf
+    fi
+    echo -e "XXX\n80\nEnabling /etc/systemd/system/nordvpn-net-monitor.service\nXXX"
+    systemctl daemon-reload &> /dev/null
+    systemctl enable nordvpn-net-monitor.service &> /dev/null
+    echo -e "XXX\n100\nDone!\nXXX"
+    sleep 2
+}
+
 ### display license
 whiptail --title "${wt_title}" --infobox "${license}" 0 0
 sleep 1
@@ -548,8 +639,13 @@ if [[ $not_nord == $false ]]; then
         whiptail --title "${wt_title}" --msgbox "There was a problem logging in.
 Please try again from the command line." 0 0
     fi
+    wt_title="NordVPN Monitor Service"
+    if whiptail --title "${wt_title}" --yesno "Do you want to install the monitor service?" 0 0 3>&1 1>&2 2>&3; then
+        configure-monitor-service
+    fi
 fi
-restart-services | whiptail --title "${wt_title}" --gauge "Restarting services..." 6 50 0
+wt_title="Router Setup"
+restart-services | whiptail --title "${wt_title}" --gauge "Restarting services..." 7 50 0
 whiptail --title "${wt_title}" --infobox "Router setup complete.
 
 It is recommended to reboot at this time.
