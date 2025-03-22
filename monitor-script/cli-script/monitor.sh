@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 license(){
+    clear
     cat <<EOF
 MIT License
 
@@ -159,8 +160,9 @@ main() {
             retrieve "$status_item"
         done
         clear
-        date +%F" "%T
+        echo -e "\e[1;32m[ $(date +%F" "%T) ]\e[0m"
         for status_item in "${update_items[@]}" ; do
+            echo
             echo -e "\e[1;32m${status_item^} : ${status_colors[${current_updates["$status_item"]}]}${stats[${current_updates["$status_item"]}]}\e[0m"
             display "$status_item"
         done
