@@ -115,6 +115,13 @@ cleanup() {
 trap cleanup INT SIGINT EXIT SIGTERM
 
 check-connectivity() {
+    # This method of checking connectivity seems to have trouble in multi-NAT situations
+    # ping may be a better solution in those situations
+    # if ping -c1 $test; then
+    #     return $true
+    # else
+    #     return $false
+    # fi
     test=google.com
     if nc -zw1 $test 443 && echo |openssl s_client -connect $test:443 2>&1 |awk '
     $1 == "SSL" && $2 == "handshake" { handshake = 1 }
