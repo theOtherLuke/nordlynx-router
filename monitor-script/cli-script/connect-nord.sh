@@ -106,7 +106,7 @@ uptime_seconds=
 uptime=
 
 cleanup() {
-    kill "${manager_pid}"
+    [[ $daemonized == $true ]] || kill "${manager_pid}"
     echo -e "${show}${cl}" # restore the cursor
     rm /root/.monitor.pid &> /dev/null
     exit
@@ -193,7 +193,7 @@ manage() {
         ip link set ${lan} up
         n_status=$(nordvpn status)
         server=$(grep Server <<< $n_status)
-        [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Server <<< $n_status)" || echo -ne "${gn}$(grep Server <<< $n_status)${cl}"
+        [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Server <<< $n_status)" || echo -e "${gn}$(grep Server <<< $n_status)${cl}"
         [[ $daemonized == $true ]] && echo "[ $(date) ] $(grep Uptime <<< $n_status)" || echo -ne "${lt_gn}$(grep Uptime <<< $n_status)${cl}"
         while :; do
             ## test connection
@@ -218,7 +218,7 @@ manage() {
             fi
             sleep 10
             get-uptime
-            [[ $daemonized == $true ]] && echo "[ $(date) ] ${server}" || echo -ne "${gn}\r${server}${cy}${cl}\e[K"
+            [[ $daemonized == $true ]] && echo "[ $(date) ] ${server}" # || echo -ne "${gn}\r${server}${cy}${cl}\e[K"
             [[ $daemonized == $true ]] && echo "[ $(date) ] ${uptime}" || echo -ne "${lt_gn}\r${uptime}${cy}${cl}\e[K"
             if ip -br a show ${lan} | grep DOWN ; then
                 ip link set ${lan} up
@@ -241,5 +241,9 @@ trap-keyboard() {
         esac
     done
 }
-manage & manager_pid="$!"
-trap-keyboard
+if [[ $daemonized == $true ]]; then
+    manage
+else
+    manage & manager_pid="$!"
+    trap-keyboard
+fi
