@@ -501,10 +501,10 @@ EOF
         [[ -f /etc/rc.local.sh ]] && mv /etc/rc.local.sh /etc/rc.local
         [[ -f /etc/rc.local ]] && cp /etc/rc.local /etc/rc.local.sh
         cat <<EOF > /etc/rc.local
-    #!/usr/bin/env bash
-    source /etc/rc.local.sh
-    /usr/sbin/ip link set ${lan_interface} down
-    EOF
+#!/usr/bin/env bash
+source /etc/rc.local.sh
+/usr/sbin/ip link set ${lan_interface} down
+EOF
     fi
     whiptail --title "${wt_title}" --infobox "Service install is complete.
 
