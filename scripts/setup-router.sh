@@ -497,6 +497,15 @@ EOF
         done
     fi
     install-monitor-service | whiptail --title "${wt_title}" --gauge "Performing operations..." 6 50 0
+    if whiptail --title "${wt_title}" --yesno "Do you want to set the LAN interface as down when the system boots?" 0 0; then
+        [[ -f /etc/rc.local.sh ]] && mv /etc/rc.local.sh /etc/rc.local
+        [[ -f /etc/rc.local ]] && cp /etc/rc.local /etc/rc.local.sh
+        cat <<EOF > /etc/rc.local
+    #!/usr/bin/env bash
+    source /etc/rc.local.sh
+    /usr/sbin/ip link set ${lan_interface} down
+    EOF
+    fi
     whiptail --title "${wt_title}" --infobox "Service install is complete.
 
 You can change additional settings by editing
