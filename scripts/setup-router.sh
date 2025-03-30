@@ -134,7 +134,7 @@ get-lan-interface() {
         lan_interface=$(whiptail --title "${wt_title}" --menu "${wt_prompt}" 0 50 0 "${n_interface_prompt[@]}" 3>&1 1>&2 2>&3)
         exit_status=$?
         if [[ $exit_status -eq 0 ]]; then
-            for (( i=0; i<${#n_interface_prompt[@]}; i+= )); do
+            for (( i=0; i<${#n_interface_prompt[@]}; i+=3 )); do
                 if [[ ${n_interface_prompt[$i]} =~ $lan_interface ]]; then
                     if [[ ${n_interface_prompt[$i]} =~ (WAN) ]]; then
                         wan_interface=""
