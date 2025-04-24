@@ -248,5 +248,10 @@ trap-keyboard() {
         esac
     done
 }
-manage & manager_pid="$!"
-trap-keyboard
+
+if [[ $daemonized == $false ]]; then
+    manage & manager_pid="$!"
+    trap-keyboard
+else
+    manage
+fi
