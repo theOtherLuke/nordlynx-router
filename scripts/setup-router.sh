@@ -327,7 +327,7 @@ write-files() {
     chmod 600 /etc/netplan/*.yaml
     ## a couple pretty thing for the cli
     grep -i nordvpn < /etc/issue &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/header/issue' -qO - >> /etc/issue
-    grep -i nordvpn < ~/.bashrc &> /dev/null || wget 'hhttps://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/header/.bashrc' -qO - >> ~/.bashrc
+    grep -i nordvpn < ~/.bashrc &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/header/.bashrc' -qO - >> ~/.bashrc
 }
 
 restart-services() {
@@ -572,7 +572,7 @@ fi
 clear
 echo -e "\e[1;32mINSTALLING REQUIRED PACKAGES...\e[0m"
 if apt update && apt upgrade -y;then
-    if ! apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils ipcalc openvswitch-switch -y; then
+    if ! apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils ipcalc openvswitch-switch jq -y; then
         whiptail --title "${wt_title}" --msgbox "Error installing packages. Check your
 configuration and try again." 0 0
         exit
