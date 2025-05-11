@@ -1,6 +1,7 @@
 # NordVPN Router - WebUI
 #### *2025-05-08*
-I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions.
+I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions. I will also be integrating an option to install the webui as part of the `setup-router.sh` script.
+
 ### Features -
 * Pages for status, settings, account, about, and login
 * Uses bash scripts on the backend to interact with the service and serve info to the node server
