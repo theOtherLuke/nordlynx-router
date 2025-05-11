@@ -325,6 +325,9 @@ write-files() {
     done| whiptail --title "${wt_title}" --gauge "Writing files..." 6 60 0
     sleep 1
     chmod 600 /etc/netplan/*.yaml
+    ## a couple pretty thing for the cli
+    grep -i nordvpn < /etc/issue &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/script/issue' -qO - >> /etc/issue
+    grep -i nordvpn < ~/.bashrc &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/script/.bashrc' -qO - >> ~/.bashrc
 }
 
 restart-services() {
