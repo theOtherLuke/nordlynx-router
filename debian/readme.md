@@ -1,4 +1,13 @@
 # Debian Specific Setup Steps
+>[!WARNING]
+>DO NOT USE THE SETUP SCRIPT IN THIS FOLDER! This script is full of bugs and is only being retained to show early work on this.
+>
+>Use `scripts/setup-router.sh` instead if you want to use the setup script:
+>
+>`bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/scripts/setup-router.sh)`
+>
+
+*As of 2025-05-10, this writeup is still current.*
 
 See 'old-version.md' for original version
 
@@ -14,9 +23,9 @@ Machine recommendations:
 
 128MB swap ( My testing does not show that swap is even being used, so may possibly be excluded. Normally I just leave the Proxmox default of 512MB )
 
-4GB drive ( 2GB minimum )
+4GB drive ( 2GB minimum, may need to expand if implementing a webui )
 
-2 network interfaces ( 1 interface minimum, requires more advanced network setup not covered here )
+2 network interfaces ( 1 interface possible but requires more advanced network setup like vlans, *not covered here* )
 
 Update Debian:
 
@@ -111,7 +120,7 @@ interface=eth1
 dhcp-range=10.1.1.2,10.1.1.20,1h
 ```
 
-***Before installing NordVPN, I recommend testing forwarding using the instructions in the iptables section above before continuing***
+***Before installing NordVPN, I recommend testing forwarding using the instructions in the iptables section above before continuing.***
 *This setup should pass traffic from a client without NordVPN installed. Everything up to this point is just how to setup a basic router. The last step is what makes it a NordVPN router.*
 
 ***Make it go***
