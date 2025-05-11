@@ -2,7 +2,7 @@
 # and since this is a .bashcr function, you can call it from the cli
 show-interface-info() {
     length=0
-    declare -A ifaces 
+    declare -A ifaces
     declare -A iface_addrs
     while IFS="=" read -r key value; do
         iface_addrs["$key"]="$value"
@@ -25,7 +25,20 @@ show-interface-info() {
         address="${ifaces[$interface]}"
         echo -e "\e[1;32m${interface}\e[${length}G\e[0m : \e[1;36m${address}\e[0m"
     done
-    echo -e '\n\n'
+    echo
+    if [[ -d /root/webui ]]; then
+        next=0
+            while read -r line; do
+                if [[ $line =~ (address) ]]; then
+                    next=1
+                elif [[ $next -eq 1 ]]; then
+                    address=${line#*- }
+                    address=${address%%/*}
+                fi
+            done < <(cat /etc/netplan/config-lan.yaml)
+        echo -e "\e[1;35mAccess the webui at: \e[1;36mhttps://${address}:1776\e[0m\n"
+    fi
+    echo
 }
 clear
 
