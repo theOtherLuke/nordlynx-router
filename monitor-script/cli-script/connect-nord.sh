@@ -127,7 +127,11 @@ check-connectivity() {
     $1 == "SSL" && $2 == "handshake" { handshake = 1 }
     handshake && $1 == "Verification:" { ok = $2; exit }
     END { exit ok != "OK" }'; then
-        return $true
+        if ping -c1 google.com; then
+            return $true
+        else
+            return $false
+        fi
     else
         return $false
     fi
