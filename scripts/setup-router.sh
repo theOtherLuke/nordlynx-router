@@ -326,8 +326,8 @@ write-files() {
     sleep 1
     chmod 600 /etc/netplan/*.yaml
     ## a couple pretty thing for the cli
-    grep -i nordvpn < /etc/issue &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/script/issue' -qO - >> /etc/issue
-    grep -i nordvpn < ~/.bashrc &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/script/.bashrc' -qO - >> ~/.bashrc
+    grep -i nordvpn < /etc/issue &> /dev/null || wget 'https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/header/issue' -qO - >> /etc/issue
+    grep -i nordvpn < ~/.bashrc &> /dev/null || wget 'hhttps://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/header/.bashrc' -qO - >> ~/.bashrc
 }
 
 restart-services() {
