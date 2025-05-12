@@ -1,0 +1,8 @@
+[Unit]
+Description=Watch for IP address changes to update /etc/issue
+
+[Path]
+PathChanged=/proc/net/fib_trie
+
+[Install]
+WantedBy=multi-user.target
