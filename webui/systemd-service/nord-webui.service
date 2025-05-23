@@ -1,0 +1,13 @@
+[Unit]
+Description=NordVPN Router WebUI
+Requires=network.target
+
+[Service]
+ExecStart=/root/webui/launcher.sh
+User=root
+Type=simple
+Restart=on-failure
+ExecStop=cat /root/.webui.pid | xargs -I{} kill {}
+
+[Install]
+WantedBy=default.target
