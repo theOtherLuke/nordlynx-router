@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= page.toUpperCase()%> @ <%= hostname %></title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .warning {
+      color: red;
+    }
+    nav {
+      margin-bottom: 1em;
+    }
+  </style>
+</head>
+<body>
+  <% if (page !== 'login') { %>
+    <nav>
+      <a href="/status">Status</a> |
+      <a href="/settings">Settings</a> |
+      <a href="/account">Account</a> |
+      <a href="/about">About</a>
+    </nav>
+  <% } %>
+
+  <h1><%= page.toUpperCase()%> @ <%= hostname %></h1>
+
+  <% if (page === 'login') { %>
+      <pre>Click this link to get your login token from NordVPN</pre>
+    <% if (output) { %>
+        <pre>
+            <% if (output.startsWith('http')) { %>
+              <a href="<%= output %>" target="_blank"><%= output %></a>
+            <% } else { %>
+              <%= output %>
+            <% } %>
+          </pre>
+    <% } %>
+    <pre>Cancel any request to open a new window.</pre>
+    <pre>Right-click on the 'Continue' button and copy the link.</pre>
+    <pre>Paste the link here.</pre>
+    <form method="POST" action="/login">
+      <input type="text" name="input" required />
+      <button type="submit">Submit</button>
+    </form>
+  <% } else if (typeof output === 'object') { %>
+    <table border="1">
+      <% for (let key in output) { %>
+        <tr>
+          <td><%= key %></td>
+          <td>
+            <% if (page === 'settings') { %>
+                <% if (['Technology', 'Firewall_Mark', 'DNS'].includes(key)) { %>
+                    <!-- For these keys, don't make the value clickable -->
+                    <span><%= output[key] %></span>
+                  <% } else { %>
+                    <!-- For other keys, make the value clickable -->
+                    <a href="/settings?key=<%= encodeURIComponent(key) %>">
+                      <span class="<%= key === 'Analytics' && output[key] === 'enabled' ? 'warning' : '' %>">
+                        <%= output[key] %>
+                      </span>
+                    </a>
+                  <% } %>
+            <% } else { %>
+              <span class="<%= output[key] === 'Disconnected' ? 'warning' : '' %>">
+                <%= output[key] %>
+              </span>
+            <% } %>
+          </td>
+        </tr>
+      <% } %>
+    </table>
+  <% } else { %>
+    <pre><%= output %></pre>
+  <% } %>
+
+  <% if (page === 'status' || page === 'settings') { %>
+    <script>
+      // Correctly send the page path as a query parameter
+      const ws = new WebSocket(`wss://${location.host}/?path=<%= page %>`);
+      ws.onmessage = (event) => {
+        const { page, output } = JSON.parse(event.data);
+        location.reload();
+      };
+    </script>
+  <% } %>
+</body>
+</html>
