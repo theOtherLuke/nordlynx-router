@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f0f0f0;
+  }
+  nav {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #33f;
+  }
+  main {
+    background: #ddd;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .warning {
+    color: red;
+  }
+  table {
+    min-width: 30%;
+    border-collapse: collapse;
+    border-left: none;
+    border-right: none;
+  }
+  table th, table td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+  }
+  a {
+    color: #007BFF;
+    text-decoration: none;
+  }
