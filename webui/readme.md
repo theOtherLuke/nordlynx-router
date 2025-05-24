@@ -1,5 +1,5 @@
 # NordVPN Router - WebUI
-#### *2025-05-08*
+#### *2025-05-23*
 I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions. I will also be integrating an option to install the webui as part of the `setup-router.sh` script.
 
 ### Features -
@@ -89,3 +89,5 @@ systemctl enable --now nord-webui.service
 ``` bash
 bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh)
 ```
+
+In my limited testing, this script failed at the downloading files step once. Running the script again resulted in success.
