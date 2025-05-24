@@ -127,7 +127,7 @@ check-connectivity() {
     $1 == "SSL" && $2 == "handshake" { handshake = 1 }
     handshake && $1 == "Verification:" { ok = $2; exit }
     END { exit ok != "OK" }'; then
-        if ping -c1 google.com; then
+        if ping -c1 -W10 google.com &> /dev/null 2>&1; then
             return $true
         else
             return $false
@@ -139,6 +139,7 @@ check-connectivity() {
 
 while ! check-connectivity ; do
     wan_checks=0
+    sysetmctl restart networking
     while ! ip -br a show ${wan} | grep UP ; do
         #((wan_checks++)) # comment this to wait for wan indefinitely
         echo -e "${lt_gn}Checking WAN. Attempt (${wan_checks})${cl}"
