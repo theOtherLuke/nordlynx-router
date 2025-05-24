@@ -86,6 +86,6 @@ systemctl enable --now nord-webui.service
 ```
 
 ## ...or use the setup script
-```
+``` bash
 bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh)
 ```
