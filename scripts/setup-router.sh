@@ -261,9 +261,7 @@ get-files() {
         60  "Getting /etc/dnsmasq.conf"            "/etc/dnsmasq.conf"            "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/config-files/dnsmasq.conf"
         65  "" "" "" 70 "" "" "" 75 "" "" ""
         80  "Getting /etc/sysctl.conf"             "/etc/sysctl.conf"             "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/config-files/sysctl.conf"
-        85  "${get_service_file_msg}"              "${service_file}"              "${service_file_url}"
-        90  "${get_service_script_msg}"            "${service_script}"            "${service_script_url}"
-        95  "${get_script_conf_file_msg}"          "${script_conf}"               "${script_conf_url}"
+        85  "" "" "" 90 "" "" "" 95  "" "" ""
         100 "All files retrieved!"                 ""                             ""
     )
     for ((i=0;i<${#files_list[@]};i+=4)); do
@@ -297,7 +295,7 @@ write-files() {
         62  ""                                                  "dhcp_start"          "$dhcp_start"        "/etc/dnsmasq.conf"
         75  ""                                                  "dhcp_end"            "$dhcp_end"          "/etc/dnsmasq.conf"
         88  ""                                                  "dhcp_lease"          "$dhcp_lease"        "/etc/dnsmasq.conf"
-        90  "${service_msg}"                                    "${service_pattern}"  "${service_replace}" "${service_file}"
+        90  "" "" ""
         100 "Done writing files!"                               ""                    ""                   ""
     )
     for ((i=0;i<${#file_configs[@]};i+=5)); do
@@ -671,6 +669,14 @@ Please try again from the command line." 0 0
     wt_title="NordVPN Monitor Service"
     if whiptail --title "${wt_title}" --yesno "Do you want to install the monitor service?" 0 0 3>&1 1>&2 2>&3; then
         configure-monitor-service
+    fi
+    if whiptail --title "${wt_title}" --yesno "Do you want to install the webui?" 0 0 3>&1 1>&2 2>&3; then
+        bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh)
+        whiptail --title "${wt_title}" --msgbox "You can access the webui at:
+
+https://${lan_address}:1776
+
+" 0 50
     fi
 fi
 wt_title="Router Setup"
