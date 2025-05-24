@@ -86,7 +86,7 @@ openssl req -nodes -new -x509 -keyout /root/webui/ssl/key.pem -out /root/webui/s
 echo -e ".\e[0m"
 
 # enable and start the service
-echo -ne "\e[1;32mEanbling and starting node-webui.service..."
+echo -ne "\e[1;32mEnabling and starting node-webui.service..."
 systemctl daemon-reload &> /dev/null
 systemctl enable --now nord-webui.service &> /dev/null
 echo -e ".\e[0m"
