@@ -1,6 +1,10 @@
 # NordVPN Router - WebUI
+>[!WARNING]
+>THIS WILL LISTEN ON *ALL* INTERFACES. I AM WORKING ON UPDATING THIS TO LIMIT IT TO A SPECIFIC INTERFACE. FOR NOW, MAKE SURE YOU APPLY APPROPRIATE FIREWALL RULES TO PREVENT UNAUTHORIZED ACCESS.
+
+
 #### *2025-05-23*
-I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions. I will also be integrating an option to install the webui as part of the `setup-router.sh` script.
+I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions. I will also be integrating an option to install the webui as part of the `setup-router.sh` script. Long weekend here, so I'll probably be working on this a bit.
 
 ### Features -
 * Pages for status, settings, account, about, and login
