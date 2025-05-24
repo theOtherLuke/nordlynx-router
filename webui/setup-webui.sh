@@ -64,7 +64,7 @@ wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/about.sh" -qO /root/webui/scripts/about.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/get-nord.sh" -qO /root/webui/scripts/get-nord.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/login.sh" -qO /root/webui/login.sh || exit 1
-wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/toggle-settings.sh" -qO /root/webui/scripts/toggle-settings.sh || exit 1
+wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/toggle-settings.sh" -qO /root/webui/scripts/toggle-setting.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/views/index.ejs" -qO /root/webui/views/index.ejs || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/systemd-service/nord-webui.service" -qO /etc/systemd/system/nord-webui.service || exit 1
 echo -e ".\e[0m"
