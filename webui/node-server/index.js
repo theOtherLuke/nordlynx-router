@@ -26,11 +26,13 @@ import https from 'https';
 import http from 'http';
 import express from 'express';
 import { exec } from 'child_process';
+import { execSync } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import os from 'os';
 
+const hostIP = execSync('./scripts/get-host-ip.sh').toString().trim();
 const thishostname = os.hostname();
 console.log(thishostname);
 
@@ -45,7 +47,7 @@ const credentials = {
 
 // Redirect HTTP to HTTPS
 http.createServer((req, res) => {
-  res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+  res.writeHead(301, { Location: `https://${hostIP}${req.url}` });
   res.end();
 }).listen(8080);
 
@@ -169,4 +171,4 @@ app.post('/login', (req, res) => {
   });
 });
 
-httpsServer.listen(1776, () => console.log('HTTPS server running on port 1776'));
+httpsServer.listen(1776, () => console.log(`HTTPS server running at https://${hostIP}:1776`));
