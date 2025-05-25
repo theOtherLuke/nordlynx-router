@@ -4,7 +4,7 @@
 
 
 #### *2025-05-23*
-I have developed a basic webui using node.js and websockets. In the coming weeks I hope to post a working version along with installation instructions. I will also be integrating an option to install the webui as part of the `setup-router.sh` script. Long weekend here, so I'll probably be working on this a bit.
+I have developed a basic webui using node.js and websockets. The files have been uploaded along with instructions and a setup script. I have also integrated an option to install the webui as part of the `setup-router.sh` script. Long weekend here, so I'll probably be working on this a bit.
 
 ### Features -
 * Pages for status, settings, account, about, and login
