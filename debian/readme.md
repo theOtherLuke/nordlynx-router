@@ -159,7 +159,7 @@ My testing suggests routing and lan-discovery need to be enabled:
 
 ```
 nordvpn set routing on
-nordvpn set lan-dicovery on
+nordvpn set lan-discovery on
 ```
 
 A list of settings can be found here : https://support.nordvpn.com/hc/en-us/articles/20196094470929-Installing-NordVPN-on-Linux-distributions
