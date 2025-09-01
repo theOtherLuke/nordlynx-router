@@ -135,7 +135,8 @@ display() {
     declare -n items="$1"
     declare -n changes="${1}_changes"
     for name in "${!items[@]}" ; do # iterate through keys in the array
-        echo -e "${name}\e[35G: ${status_colors[${changes["$name"]}]} ${items["${name}"]}\e[0m"
+#        echo -e "${name}\e[35G: ${status_colors[${changes["$name"]}]} ${items["${name}"]}\e[0m"
+        printf "%35s : ${status_colors[${changes[$name]}]}%-25s\e[0m\n" "${name}" "${items[$name]^}"
     done
 }
 
@@ -163,7 +164,8 @@ main() {
         echo -e "\e[1;32m[ $(date +%F" "%T) ]\e[0m"
         for status_item in "${update_items[@]}" ; do
             echo
-            echo -e "\e[1;32m${status_item^} : ${status_colors[${current_updates["$status_item"]}]}${stats[${current_updates["$status_item"]}]}\e[0m"
+#            echo -e "\e[1;32m${status_item^} : ${status_colors[${current_updates["$status_item"]}]}${stats[${current_updates["$status_item"]}]}\e[0m"
+            printf "\e[1;32m%35s : ${status_colors[${current_updates[$status_item]}]}%-25s\e[0m\n" "${status_item^}" "${stats[${current_updates[$status_item]}]}"
             display "$status_item"
         done
         sleep 5
