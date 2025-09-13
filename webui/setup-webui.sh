@@ -41,7 +41,7 @@ echo -ne "\e[1;34mInstalling NodeJS..."
 working-dots & dots_pid=$!
 latest_version=$(wget -qO- https://deb.nodesource.com/ | grep -Po 'setup_\K[0-9]+(?=\.x)' | sort -nr | head -1) &> /dev/null || exit 1
 bash < <(wget -qO - https://deb.nodesource.com/setup_"$latest_version".x) &> /dev/null || exit 1
-apt install nodejs -y &> /dev/null || exit 1
+apt install nodejs yq -y &> /dev/null || exit 1
 echo -e "\e[0m"
 
 # create directory structure
