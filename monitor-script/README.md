@@ -5,7 +5,7 @@ This continues to be a work in progress. I am leaving the old service and script
 
 NOTE: NordVPN's auto-connect feature will conflict with this script and needs to be disabled. 
 
-```
+```bash
 nordvpn set autoconnect off
 ```
 # NEW
@@ -14,11 +14,11 @@ nordvpn set autoconnect off
 This script will install the monitoring service using the new versions in the cli-script folder.
 
 Run...
-```
+```bash
 bash < <(wget -qO -  https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/install-monitor-service.sh)
 ```
 This script will place and configure the following files:
-```
+```bash
 ./cli-script/connect-nord.sh -> /root/connect-nord.sh
 ./cli-script/connect-nord.conf -> /root/connect-nord.conf
 ./cli-script/nordvpn-net-monitor.service -> /etc/systemd/system/nordvpn-net-monitor.service
@@ -59,12 +59,12 @@ The location can be changed. Just make sure to change the location in the .servi
 Place this service in `/etc/systemd/system/`
 
 Reload systemd, enable and start service
-```
+```bash
 $ systemctl daemon-reload
 $ systemctl enable --now nordvpn-net-monitor
 ```
 
 Check service status
-```
+```bash
 $ systemctl status nordvpn-net-monitor.service
 ```
