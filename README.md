@@ -5,9 +5,9 @@
 ## For those following along, here are some status updates-
 I have been doing *a lot* of studying. I'm doing my best to learn and better understand how to script in bash. I have previously worked in c#, c, c++, vb, and basic, but only for very small and non-critical uses like school or simple utilities for personal use, and it's been a *very* long time since my last line of code. I hope my continued education is evident in the structure, perfomance, and logic in these scripts. As always, I welcome input, coaching, correction, and ideas.
 
-*Update 2025-05-23*
+***Update 2025-09-13***
 
-I have developed a webui for this project, which I am using on my setups. The files have been uploaded as well as instructions and script for setup. I have also added the option to install it as part of the main setup script. 
+I have corrected a **big** error in the webui installer script. Apparently, I failed to add a line to fetch `get-host-ip.sh`.
 
 ---
 ### I created this to help others build and configure their own whole-network router using NordVPN
