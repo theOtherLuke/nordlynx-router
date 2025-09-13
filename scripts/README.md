@@ -32,7 +32,7 @@ Minimum system requirements for LXC. Requirements for a full VM or bare-metal ma
 - 4GB drive(8GB recommended)
 - 2 network interfaces(WAN set to dhcp, LAN set to static)
 
-This does not install and configure the monitor script like the previous install script.
+This script offers the option to install both the monitor service/script and the webui. *You may need to do additional configuration on your router to access the webui.*
 
 **I have only tested this in an LXC container, not in a VM or bare-metal, so YMMV**
 
