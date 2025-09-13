@@ -570,7 +570,7 @@ fi
 clear
 echo -e "\e[1;32mINSTALLING REQUIRED PACKAGES...\e[0m"
 if apt update && apt upgrade -y;then
-    if ! apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils ipcalc openvswitch-switch jq -y; then
+    if ! DEBIAN_FRONTEND=noninteractive apt install iptables-persistent netplan.io dnsmasq dnsmasq-utils ipcalc openvswitch-switch jq -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then
         whiptail --title "${wt_title}" --msgbox "Error installing packages. Check your
 configuration and try again." 0 0
         exit
