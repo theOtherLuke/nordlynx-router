@@ -40,7 +40,7 @@ Once the container is started, login as **root** and update using `dnf upgrade`
 
 **Configure dnsmasq** `nano /etc/dnsmasq.conf`. Make sure you change it to match your setup or needs.
 
-```
+```ini
 # Your LAN interface
 interface=eth1
 
@@ -60,7 +60,7 @@ Disable conflicting systemd-resolved `systemctl disable systemd-resolved`
 
 `nano /etc/netplan/config.yaml`
 
-```
+```yaml
 network:
   version: 2
   renderer: networkd
@@ -86,14 +86,14 @@ This will overwrite the file. It would be good idea to make a backup  `cp /etc/s
 **Configure your firewall(iptables)**
 
 There's one extra step to perform in Fedora. You have to make sure firewalld is not enabled and you have to enable the iptables service.
-```
+```bash
 systemctl disable --now systemd-firewalld
 systemctl enable --now iptables
 ```
 
 Create the rules. The easiest way is to open the file and paste them in. `nano /etc/sysconfig/iptables` ip6tables would be for IPv6, obviously.
 
-```
+```bash
 *mangle
 :PREROUTING ACCEPT [0:0]
 :INPUT ACCEPT [0:0]
@@ -129,16 +129,16 @@ Make sure you change the rules file back to nordlynx.
 This is the same on every distro I have tested. Follow the instructions on the nordvpn website to install and configure.
 
 Install the NordVPN app
-```
+```bash
 sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
 ```
 
 Login
-```
+```bash
 nordvpn login
 ```
 Copy the link and paste in your browser. Sign in. Cancel the request to open a new window. Right-click the *CONTINUE* button and copy the link. Paste the new link into the login command. Don't forget the double quotes.
-```
+```bash
 nordvpn login --callback "<link>"
 ```
 
