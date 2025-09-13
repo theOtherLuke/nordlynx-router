@@ -47,12 +47,12 @@ Use the script below for debian, or follow the instructions in the appropriate f
 
 - Using wget:
 
-```
+```bash
 bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/scripts/setup-router.sh)
 ```
 - Using curl:
 
-```
+```bash
 bash < <(curl -sSf https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/scripts/setup-router.sh)
 ```
 
