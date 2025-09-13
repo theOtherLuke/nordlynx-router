@@ -35,7 +35,7 @@ Update Debian:
 
 Update Debian and install packages:
 
-```
+```bash
 apt update
 apt upgrade -y
 apt install iptables-persistent dnsmasq dnsmaq-utils netplan.io -y
@@ -55,7 +55,7 @@ and uncomment `#inet.ipv4.ip_forward=1`
 
 Open `/etc/iptables/rules.v4` and paste in the following. Make sure you change "eth1" to match your lan interface
 
-```
+```bash
 *mangle
 :PREROUTING ACCEPT [0:0]
 :INPUT ACCEPT [0:0]
@@ -92,7 +92,7 @@ Edit the network configuration file
 
 You *must* use spaces in this file, not tabs.
 
-```
+```yaml
 network:
   version: 2
   renderer: networkd
@@ -112,7 +112,7 @@ Edit the dnsmasq config file
 
 `nano /etc/dnsmasq.conf`
 
-```
+```ini
 ## LAN facing interface ##
 interface=eth1
 
