@@ -23,6 +23,6 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-IFS=":" read -r key value < <(nordvpn version)
+read -ra values < <(nordvpn version)
 
-echo "${value}"
+echo "${values[-1]}"
