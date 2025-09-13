@@ -62,6 +62,7 @@ wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/package.json" -qO /root/webui/package.json || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/public/style.css" -qO /root/webui/public/style.css || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/about.sh" -qO /root/webui/scripts/about.sh || exit 1
+wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/get-host-ip.sh" -qO /root/webui/scripts/get-host-ip.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/get-nord.sh" -qO /root/webui/scripts/get-nord.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/login.sh" -qO /root/webui/login.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/toggle-setting.sh" -qO /root/webui/scripts/toggle-setting.sh || exit 1
