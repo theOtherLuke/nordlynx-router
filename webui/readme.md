@@ -49,6 +49,7 @@ wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/package.json" -O /root/webui/package.json
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/public/style.css" -O /root/webui/public/style.css
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/about.sh" -O /root/webui/scripts/about.sh
+wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/get-host-ip.sh" -O /root/webui/scripts/get-host-ip.sh
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/get-nord.sh" -O /root/webui/scripts/get-nord.sh
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/login.sh" -O /root/webui/login.sh
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/toggle-settings.sh" -O /root/webui/scripts/toggle-settings.sh
@@ -95,3 +96,8 @@ bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-rout
 ```
 
 In my limited testing, this script failed at the downloading files step once. Running the script again resulted in success.
+
+### Access the webui
+```
+https://<lan-address>:1776
+```
