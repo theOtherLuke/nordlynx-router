@@ -2,7 +2,7 @@
 
 # Linux based NordVPN router
 
-### ***While I test and ultimately use these scripts on my own setups, I would not consider them "production-ready", so use them at your own risk. I suggest following the write-up in the debian folder. Replace the network configuration with what works for you. You don't necessarily have to use netplan. Even better, break down the scripts and follow the steps, or even write your own script. As always, I do welcome suggestions and corrections.***
+### ***While I test and ultimately use these scripts on my own setups, I do not claim they are "production-ready", so use them at your own risk. I suggest following the write-up in the debian folder. Replace the network configuration with what works for you. You don't necessarily have to use netplan. Even better, break down the scripts and follow the steps, or even write your own script. As always, I do welcome suggestions and corrections.***
 
 ## For those following along, here are some status updates-
 I have been doing *a lot* of studying. I'm doing my best to learn and better understand how to script in bash. I have previously worked in c#, c, c++, vb, and basic, but only for very small and non-critical uses like school or simple utilities for personal use, and it's been a *very* long time since my last line of code. I hope my continued education is evident in the structure, perfomance, and logic in these scripts. As always, I welcome input, coaching, correction, and ideas.
