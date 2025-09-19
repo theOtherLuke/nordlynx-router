@@ -1,3 +1,5 @@
+***I have not gotten this working correctly on debian 13 Trixie yet.*** *It is possible some of the packages have changed and I will need to adjust the configuration accordingly. I will work on it as time permits.*
+
 # Linux based NordVPN router
 
 ### ***While I test and ultimately use these scripts on my own setups, I would not consider them "production-ready", so use them at your own risk. I suggest following the write-up in the debian folder. Replace the network configuration with what works for you. You don't necessarily have to use netplan. Even better, break down the scripts and follow the steps, or even write your own script. As always, I do welcome suggestions and corrections.***
