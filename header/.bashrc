@@ -37,7 +37,6 @@ show-interface-info() {
                 fi
             done < <(cat /etc/netplan/config-lan.yaml)
         echo -e "\e[1;35mAccess the webui at: \e[1;36mhttps://${address}:1776\e[0m\n"
-        export WEBUI_IP="$address"
     fi
     echo
 }
