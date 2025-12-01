@@ -35,6 +35,7 @@ declare -A n_settings_actions_template=(
         ["Firewall"]="firewall"
         ["Routing"]="routing"
         ["Analytics"]="analytics"
+        ["User Consent"]="analytics"
         ["Kill Switch"]="killswitch"
         ["Threat Protection Lite"]="tpl"
         ["Notify"]="notify"
