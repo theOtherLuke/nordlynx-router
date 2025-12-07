@@ -30,10 +30,15 @@ cleanup() {
 trap cleanup EXIT
 
 working-dots() {
+    echo '\e[s'
     while :; do
         echo -n "."
         sleep .2
     done
+}
+
+update-dots() {
+    printf "\e[u\e[K\e[1;32m%s\e[0m\n" "DONE"
 }
 
 # install latest nodejs
@@ -42,20 +47,22 @@ working-dots & dots_pid=$!
 latest_version=$(wget -qO- https://deb.nodesource.com/ | grep -Po 'setup_\K[0-9]+(?=\.x)' | sort -nr | head -1) &> /dev/null || exit 1
 bash < <(wget -qO - https://deb.nodesource.com/setup_"$latest_version".x) &> /dev/null || exit 1
 apt install nodejs yq -y &> /dev/null || exit 1
-echo -e "\e[0m"
+# echo -e "\e[0m"
+update-dots
 
 # create directory structure
-echo -ne "\e[1;34mCreating directory structure..."
+echo -ne "\e[1;34mCreating directory structure...\e[s"
 mkdir /root/webui &> /dev/null
 mkdir /root/webui/node_modules &> /dev/null
 mkdir /root/webui/public &> /dev/null
 mkdir /root/webui/scripts &> /dev/null
 mkdir /root/webui/ssl &> /dev/null
 mkdir /root/webui/views &> /dev/null
-echo -e "\e[0m"
+# echo -e "\e[0m"
+update-dots
 
 # download files
-echo -ne "\e[1;34mDownloading files."
+echo -ne "\e[1;34mDownloading files...\e[s"
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/index.js" -qO /root/webui/index.js || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/launcher.sh" -qO /root/webui/launcher.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/package-lock.json" -qO /root/webui/package-lock.json || exit 1
@@ -68,19 +75,22 @@ wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/scripts/toggle-setting.sh" -qO /root/webui/scripts/toggle-setting.sh || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/node-server/views/index.ejs" -qO /root/webui/views/index.ejs || exit 1
 wget "https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/systemd-service/nord-webui.service" -qO /etc/systemd/system/nord-webui.service || exit 1
-echo -e ".\e[0m"
+# echo -e ".\e[0m"
+update-dots
 
 # make scripts executable
-echo -ne "\e[1;34mMaking scripts executable..."
+echo -ne "\e[1;34mMaking scripts executable...\e[s"
 chmod +x /root/webui/launcher.sh &> /dev/null || exit 1
 chmod +x /root/webui/scripts/*.sh &> /dev/null || exit 1
-echo -e "\e[0m"
+# echo -e "\e[0m"
+update-dots
 
 # install node modules
-echo -ne "\e[1;34mInstalling node modules..."
+echo -ne "\e[1;34mInstalling node modules...\e[s"
 cd /root/webui &> /dev/null || exit 1
 npm install ws express &> /dev/null || exit 1
-echo -e "\e[0m"
+# echo -e "\e[0m"
+update-dots
 
 # create self-signed certs
 kill "$dots_pid" &> /dev/null
@@ -102,12 +112,14 @@ echo -e "\e[1;34mCreating self-signed certificates...\e[1;35m"
 openssl req -nodes -new -x509 -keyout /root/webui/ssl/key.pem -out /root/webui/ssl/cert.pem -subj "${C}${ST}${L}${O}${OU}${CN}" || exit 1
 
 # enable and start the service
-working-dots &
+working-dots & dots_pid=$!
 echo -ne "\e[1;34mEnabling and starting node-webui.service..."
 systemctl daemon-reload &> /dev/null || exit 1
 systemctl enable --now nord-webui.service &> /dev/null || exit 1
-echo -e "\e[0m"
+# echo -e "\e[0m"
+update-dots
 
+kill "$dots_pid" &> /dev/null
 # byeee
 jobs -p | xargs -I{} kill {}
 echo -e "\e[1;32mDONE!\e[0m"
