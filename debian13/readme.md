@@ -85,14 +85,30 @@ Change the LAN interface name for yours. WAN interface is not required to be con
 
 # ---- EDIT THESE INTERFACE NAMES ----
 define NORD_IF = "nordlynx"     # Upstream / nordvpn interface
-define WAN_IF = "eth0"     # Upstream / unfiltered internet interface. not used for our basic nord router
-define LAN_IF = "eth1"     # Internal / client interface
-define LAN_NET = 192.168.200.0/24 # Internal network we configured in /etc/network/interfaces and /etc/dnsmasq.conf
+define WAN_IF = "__WAN_IF__"     # Upstream / unfiltered internet interface. not used for our basic nord router
+define LAN_IF = "__LAN_IF__"     # Internal / client interface
+define LAN_NET = "__LAN_NET__" # Internal network we configured in /etc/network/interfaces and /etc/dnsmasq.conf
 # ------------------------------------
-
 
 # Flush existing ruleset on load
 flush ruleset
+
+# ============================
+#   MANGLE TABLE (connmark)
+#
+# Initial testing says we don't need this anymore, but I'm leaving it
+# just in case.
+# ============================
+table ip mangle {
+
+    chain prerouting {
+        type filter hook prerouting priority -150; policy accept;
+
+        # -A PREROUTING -i lan_interface -m comment --comment nord-router \
+        #     -j CONNMARK --set-xmark 0xe1f1/0xffffffff
+        iifname "$LAN_IF" meta mark set 0xe1f1
+    }
+}
 
 # ============================
 # NAT TABLE
