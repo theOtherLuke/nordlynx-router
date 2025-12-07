@@ -30,7 +30,7 @@ cleanup() {
 trap cleanup EXIT
 
 working-dots() {
-    echo '\e[s'
+    printf '\e[s'
     while :; do
         echo -n "."
         sleep .2
