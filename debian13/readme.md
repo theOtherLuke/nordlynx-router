@@ -149,15 +149,7 @@ table ip filter {
 
     	ct state invalid drop
     }
-auto lo
-iface lo inet loopback
 
-auto eth0
-iface eth0 inet dhcp
-
-auto eth1
-iface eth1 inet static
-	address 192.168.200.1/24
     # allow outbound traffic from the router itself
     chain output {
         type filter hook output priority 0; policy accept;
