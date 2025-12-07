@@ -1,0 +1,8 @@
+network:
+  version: 2
+  wifis:
+    __WIFI_IF__:
+      access-points:
+        __WIFI_AP__:
+          password: __WIFI_PWD__
+      dhcp4: true
