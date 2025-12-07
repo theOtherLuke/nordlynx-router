@@ -1,4 +1,5 @@
-***I have not gotten this working correctly on debian 13 Trixie yet.*** *It is possible some of the packages have changed and I will need to adjust the configuration accordingly. I will work on it as time permits.*
+***I have gotten this working correctly on debian 13 Trixie*** *I have a first candidate up and running. I will continue to work on it as time permits.*
+See: [Debian 13 Progress](https://github.com/theOtherLuke/nordlynx-router/blob/main/debian13/readme.md)
 
 # Linux based NordVPN router
 
