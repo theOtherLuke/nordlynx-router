@@ -1,0 +1,9 @@
+auto lo
+iface lo inet loopback
+
+auto __WAN_IF__
+iface __WAN_IF__ inet dhcp
+
+auto __LAN_IF__
+iface __LAN_IF__ inet static
+    address __LAN_IP__/24
