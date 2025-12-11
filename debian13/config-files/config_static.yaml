@@ -2,6 +2,6 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    __NET_IF_:
+    __NET_IF__:
       addresses:
       - __NET_IP__/24
