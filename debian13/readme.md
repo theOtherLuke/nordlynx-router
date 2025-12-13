@@ -12,8 +12,8 @@ I  discovered my problem is that Debian 13 seems to not like using iptables for 
 apt update
 apt upgrade -y
 
-# install dnsmasq
-apt install dnsmasq dnsmasq-utils -y
+# install dnsmasq, nftables
+apt install dnsmasq nftables -y
 
 # install nordvpn cli client
 sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)
@@ -27,12 +27,12 @@ I may still use `netplan` for it's modular nature. For now I'm testing with the 
 auto lo
 iface lo inet loopback
 
-auto eth0 # WAN intreface
-iface eth0 inet dhcp
+auto __WAN_IF__ # WAN intreface
+iface __WAN_IF__ inet dhcp
 
-auto eth1 # LAN interface
-iface eth1 inet static
-	address 192.168.200.1/24
+auto __LAN_IF__ # LAN interface
+iface __LAN_IF__ inet manual
+	address __LAN_NET__/24
 ```
 Remember, we don't need to set gateway or nameservers here. They are configured via dhcp on the WAN interface. We will override them on the LAN with `dnsmasq`.
 
@@ -46,9 +46,11 @@ Many sources suggest putting this in `/etc/sysctl.d/99-ipforward` instead.
 
 `/etc/sysct.conf`
 ```bash
-net.ipv4.ip_forward=1
-net.ipv4.conf.all.rp_filter=2
-net.ipv4.conf.default.rp_filter=2
+# /etc/sysctl.d/99-router.conf
+net.ipv4.ip_forward = 1
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.tcp_syncookies = 1
 ```
 #### Load the new `/etc/sysctl.conf`
 ```
@@ -66,8 +68,9 @@ $ sysctl --system
 ...
 ...
 net.ipv4.ip_forward = 1
-net.ipv4.conf.all.rp_filter = 2
-net.ipv4.conf.default.rp_filter = 2
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.tcp_syncookies = 1
 ```
 As you can see, it loads `/etc/sysctl.conf` last anyways, so either way should work.
 
@@ -78,97 +81,58 @@ Change the LAN interface name for yours. WAN interface is not required to be con
 ```pgsql
 #!/usr/sbin/nft -f
 
-# =============================
-# Basic Nord router configuration
-# Debian 13 / nftables
-# =============================
+# Declare variables
+define LAN_NET = __LAN_NET__/24
+define LAN_IF = __LAN_IF__
+define WAN_IF = nordlynx
 
-# ---- EDIT THESE INTERFACE NAMES ----
-define NORD_IF = "nordlynx"     # Upstream / nordvpn interface
-define WAN_IF = "__WAN_IF__"     # Upstream / unfiltered internet interface. not used for our basic nord router
-define LAN_IF = "__LAN_IF__"     # Internal / client interface
-define LAN_NET = "__LAN_NET__" # Internal network we configured in /etc/network/interfaces and /etc/dnsmasq.conf
-# ------------------------------------
-
-# Flush existing ruleset on load
 flush ruleset
 
-# ============================
-#   MANGLE TABLE (connmark)
-#
-# Initial testing says we don't need this anymore, but I'm leaving it
-# just in case.
-# ============================
-table ip mangle {
+table inet filter {
+    chain input {
+        type filter hook input priority 0;
+    }
 
-    chain prerouting {
-        type filter hook prerouting priority -150; policy accept;
+    chain forward {
+        type filter hook forward priority 0;
+    }
 
-        # -A PREROUTING -i lan_interface -m comment --comment nord-router \
-        #     -j CONNMARK --set-xmark 0xe1f1/0xffffffff
-        iifname "$LAN_IF" meta mark set 0xe1f1
+    chain output {
+        type filter hook output priority 0;
     }
 }
 
-# ============================
-# NAT TABLE
-# ============================
-table ip nat {
-
+table inet nat {
     chain prerouting {
-        type nat hook prerouting priority -100; policy accept
+        type nat hook prerouting priority -100;
     }
 
     chain postrouting {
-        type nat hook postrouting priority 100; policy accept;
-
-        # NAT for outbound traffic
-        oifname $NORD_IF ip saddr $LAN_NET masquerade
+        type nat hook postrouting priority 100;
     }
 }
 
-# ============================
-# FILTER TABLE
-# ============================
-table ip filter {
-
-    # Default drop for safety
-    chain input {
-        type filter hook input priority 0; policy drop;
-
-        # allow local loopback
-        iif "lo" accept
-
-        # allow established/related
-        ct state established,related accept
-
-        # allow LAN to talk to router
-        iifname $LAN_IF accept
-
-        # allow ping from outside
-        # iifname $NORD_IF icmp type echo-request accept
-
-        ct state invalid drop
-    }
-
-    # Forwarding logic (router path)
+# Mark traffic coming from the LAN interface
+table ip mangle {
     chain forward {
-        type filter hook forward priority 0; policy drop;
-
-    	ct state established,related accept
-
-        # allow LAN to NORD
-        iifname $LAN_IF oifname $NORD_IF accept
-
-        # allow return traffic NORD to LAN
-        iifname $NORD_IF oifname $LAN_IF ct state related,established accept
-
-    	ct state invalid drop
+        iifname $LAN_IF ip saddr $LAN_NET mark set 0xe1f1
     }
+}
 
-    # allow outbound traffic from the router itself
-    chain output {
-        type filter hook output priority 0; policy accept;
+# Allow traffic from the LAN network to the WAN network
+table inet filter {
+    chain forward {
+        icmp type echo-request accept
+        ip protocol tcp ct state new,established,related accept
+        ip protocol udp ct state new,established,related accept
+        iifname $LAN_IF oifname $WAN_IF accept
+    }
+}
+
+# Masquerade outgoing traffic from the LAN network
+table inet nat {
+    chain postrouting {
+        ip saddr $LAN_NET oifname $WAN_IF masquerade
     }
 }
 ```
@@ -182,14 +146,14 @@ systemctl restart nftables
 `/etc/dnsmasq.conf`
 ``` bash
 # lan facing interface
-interface=eth1
+interface=__LAN_IF__
 
 # tell dnsmasq to not serve dhcp on this interface
-#no-dhcp-interface=
+no-dhcp-interface=__WAN_IF__
 
 # dhcp range <strarting_ip>,<ending_ip>,[netmask,]<lease_time>
 # netmask is optional
-dhcp-range=192.168.200.50,192.168.200.150,255.255.255.0,12h
+dhcp-range=__DHCP_START__,__DHCP_END__,__DHCP_LEASE__
 
 # override WAN dns servers for LAN. useful for pointing at pihole.
 # this may also be set to a local dns server on you wan port.
@@ -198,10 +162,10 @@ dhcp-range=192.168.200.50,192.168.200.150,255.255.255.0,12h
 #      lan net = 192.168.200.0/24
 #      local dns server = 172.16.20.55
 # dhcp_option=6,172.16.20.55 #<-- this works without additional configuration
-dhcp-option=6,1.1.1.1,8.8.8.8
+dhcp-option=6,__NAMESERVERS__
 
 # gateway - this is the static ip of the lan interface
-dhcp-option=option:router,192.168.200.1
+dhcp-option=3,__GATEWAY__
 
 # dhcp cache size
 cache-size=1000
