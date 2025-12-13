@@ -1,6 +1,0 @@
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    __NET_IF__:
-      dhcp4: true
