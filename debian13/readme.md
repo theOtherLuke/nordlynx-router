@@ -3,6 +3,7 @@
 
 Here I will be documenting my progress on migrating to Debian 13
 ---
+My progress slowed recently due to poor internet coverage. I should be finalizing the Debian 13 version soon.
 
 I  discovered my problem is that Debian 13 seems to not like using iptables for routing. That and it seems setting up ipv4 forwarding is more involved. I believe I have found a solution that uses the default `nftables` instead. This is what I have so far. These details and config options are subject to change as I continue to test. Also, please excuse any of my lysdexic typing.
 
