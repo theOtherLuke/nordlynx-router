@@ -41,6 +41,7 @@ declare -A settings=(
     ["LAN_Discovery"]="lan-discovery"
     ["Virtual_Location"]="virtual-location"
     ["Post-quantum_VPN"]="pq"
+    ["User_Consent"]="analytics"
 )
 declare -A settingsGreps=(
     ["Technology"]="Technology"
@@ -59,6 +60,7 @@ declare -A settingsGreps=(
     ["LAN_Discovery"]="Lan Discovery"
     ["Virtual_Location"]="Virtual Location"
     ["Post-quantum_VPN"]="Post-quantum VPN"
+    ["User_Consent"]="User Consent"
 )
 
 echo "Toggling setting ${settingsGreps[$args]}"
