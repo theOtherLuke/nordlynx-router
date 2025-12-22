@@ -65,10 +65,11 @@ declare -A nord_settings_template=(
     ["LAN Discovery"]="lan-discovery"
     ["Virtual Location"]="virtual-location"
     ["Post-quantum VPN"]="pq"
+    ["ARP Ignore"]="arp-ignore"
 )
 declare -A nord_settings_actor=(
-    ["firewall"]="off"
-    ["routing"]="off"
+    ["firewall"]="on"
+    ["routing"]="on"
     ["analytics"]="off"
     ["killswitch"]="off"
     ["tpl"]="off"
@@ -78,9 +79,10 @@ declare -A nord_settings_actor=(
     ["ipv6"]="off"
     ["meshnet"]="off"
     ["dns"]="off"
-    ["lan-discovery"]="off"
-    ["virtual-location"]="off"
-    ["pq"]="off"
+    ["lan-discovery"]="on"
+    ["virtual-location"]="on"
+    ["pq"]="on"
+    ["arp-ignore"]="on"
 )
 
 ### FUNCTIONS
