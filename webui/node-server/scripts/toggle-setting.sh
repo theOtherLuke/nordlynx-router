@@ -42,6 +42,7 @@ declare -A settings=(
     ["Virtual_Location"]="virtual-location"
     ["Post-quantum_VPN"]="pq"
     ["User_Consent"]="analytics"
+    ["ARP_Ignore"]="arp-ignore"
 )
 declare -A settingsGreps=(
     ["Technology"]="Technology"
@@ -61,6 +62,7 @@ declare -A settingsGreps=(
     ["Virtual_Location"]="Virtual Location"
     ["Post-quantum_VPN"]="Post-quantum VPN"
     ["User_Consent"]="User Consent"
+    ["ARP_Ignore"]="ARP Ignore"
 )
 
 echo "Toggling setting ${settingsGreps[$args]}"
