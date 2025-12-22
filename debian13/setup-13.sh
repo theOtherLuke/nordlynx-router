@@ -372,7 +372,7 @@ get-nord-settings() {
         done
         while response=$(query "Choose a setting to change, or [q] to finish :"); do
             [[ $response =~ [Qq] ]] && return
-            if [[ $response =~ ^[0-9]+$ ]] && [[ $response < ${#index[@]} ]]; then
+            if [[ $response =~ ^[0-9]+$ ]] && [[ $response -lt ${#index[@]} ]]; then
                 local setting_key="${nord_settings_template[${index[$response]}]}"
                 if [[ ${nord_settings_actor[$setting_key]} =~ "on" ]]; then
                     nord_settings_actor[$setting_key]="off"
