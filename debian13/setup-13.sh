@@ -19,7 +19,7 @@ url_net_cfg="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs
 url_nord_installer="https://downloads.nordcdn.com/apps/linux/install.sh"
 url_monitor_service="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/install-monitor-service.sh"
 url_webui="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh"
-apt_packages=(dnsmasq dnsmasq-utils)
+apt_packages=(dnsmasq nftables)
 
 ### PRINTF FORMATS
 fmt_menu_header="${c_mag}===== %s =====${c_rst}\n"
@@ -120,7 +120,7 @@ menuitem() {
     item_color='\e[1;34m'
     option=$1
     item=$2
-    flag=$3
+    flag="${3:-}"
     [[ $3 == "__NO__" ]] && nl="" || nl="\n"
     printf "${option_color} %3s) ${item_color}%-*s${nl}" "${option}" $menu_col_width "${item}"
 }
@@ -129,7 +129,7 @@ menuitem-status() {
     option_color='\e[1;36m'
     item_color='\e[1;34m'
     option=$1
-    status=$2
+    status="${2:0:12}"
     item=$3
     printf "${option_color} %3s) %-12s ${item_color}%s\n" "${option}" "${status}" "${item}" # status is 6 spaces in
 }
@@ -175,7 +175,7 @@ get-octet() {
 
 query-router-mode() {
     clear
-    printf "\n\n$fmt_menu_heading\n" "Select Router Mode" >&2
+    printf "\n\n$fmt_menu_header\n" "Select Router Mode" >&2
     menuitem "1" "NordVPN Router"
     menuitem "2" "Basic Router"
     menuitem "q" "Quit"
@@ -199,7 +199,7 @@ get-files() {
     wget "$url_sysctl" -qO /etc/sysctl.d/99-router.conf || { printf "$fmt_error" "Error downloading $url_sysctl"; exit 7; }
     wget "$url_nftables" -qO /etc/nftables.conf || { printf "$fmt_error" "Error downloading $url_nftables"; exit 7; }
     wget "$url_dnsmasq" -qO /etc/dnsmasq.conf || { printf "$fmt_error" "Error downloading $url_dnsmasq"; exit 7; }
-    wget "$url_net_cfg" -qO /etc/network/interfaces || { printf "$fmt_error" "Error downloading $url_dnsmasq"; exit 7; }
+    wget "$url_net_cfg" -qO /etc/network/interfaces || { printf "$fmt_error" "Error downloading $url_net_cfg"; exit 7; }
     update-dots finish
 }
 
@@ -224,7 +224,7 @@ write-files() {
 
 query-wan-interface() {
     clear
-    printf "\n\n$fmt_menu_heading\n" "Select WAN Interface" >&2
+    printf "\n\n$fmt_menu_header\n" "Select WAN Interface" >&2
     for (( i=0; i<${#net_interfaces[@]}; i++ )); do
         menuitem "$i" "${net_interfaces[$i]}"
     done
@@ -242,7 +242,7 @@ query-wan-interface() {
 
 query-lan-interface() {
     clear
-    printf "$fmt_menu_heading\n" "Select LAN Interface" >&2
+    printf "$fmt_menu_header\n" "Select LAN Interface" >&2
     for (( i=0; i<${#net_interfaces[@]}; i++ )); do
         menuitem "$i" "${net_interfaces[$i]}"
     done
@@ -313,7 +313,7 @@ query-dhcp-lease() {
             printf '\e[J'
             break
         fi
-        [[ $err == true ]] || { printf "\e[u\e[K$fmt_warn" "Please enter a valid lease time (1-999999)[h|m|s]..." >&2; err=true; printf '\e[s'; }
+        [[ $err == true ]] || { printf "\e[u\e[K$fmt_warn" "Please enter a valid lease time (1-999999)(h|m|s)..." >&2; err=true; printf '\e[s'; }
         query-reset
     done
 }
@@ -342,7 +342,7 @@ EOF
 }
 
 populate-settings-query() {
-    command -v nordvpn &>/dev/null || { printf "$fmt_err" "NordVPN app is not found on this system"; exit 9; }
+    command -v nordvpn &>/dev/null || { printf "$fmt_error" "NordVPN app is not found on this system"; exit 9; }
     local key value
     while IFS=":" read -r key value; do
         if [[ $value  =~ (enabled) ]]; then
@@ -372,7 +372,7 @@ get-nord-settings() {
         done
         while response=$(query "Choose a setting to change, or [q] to finish :"); do
             [[ $response =~ [Qq] ]] && return
-            if [[ $response =~ ^[0-9]+$ ]] && [[ $response -le ${#index[@]} ]]; then
+            if [[ $response =~ ^[0-9]+$ ]] && [[ $response < ${#index[@]} ]]; then
                 local setting_key="${nord_settings_template[${index[$response]}]}"
                 if [[ ${nord_settings_actor[$setting_key]} =~ "on" ]]; then
                     nord_settings_actor[$setting_key]="off"
@@ -406,7 +406,7 @@ login-nord() {
         while :; do
             read -ra nord_redirect_url < <(nordvpn login)
             if [[ ${nord_redirect_url[*]} =~ (You are already logged in) ]]; then
-                printf "$fmt_info" "You are already logged in"
+                printf "$fmt_info" "You are logged in"
                 return 0
             fi
             if [[ ${nord_redirect_url[*]} =~ (login-redirect) ]]; then
@@ -456,7 +456,7 @@ configure-monitor-service() {
         fi
         query-reset
     done
-    if [[ $set_options ]]; then
+    if [[ $set_options == true ]]; then
         ### COUNTRY
         local max_len=0
         local -a countries
@@ -464,8 +464,7 @@ configure-monitor-service() {
         for country in "${countries[@]}"; do
             [[ ${#country} -gt $max_len ]] && max_len=${#country}
         done
-        (( max_len + 3 ))
-        export menu_col_width=$max_len
+        export menu_col_width=$((max_len+3))
         for (( i=0; i<${#countries[@]}; i++ )); do
             (( (i+1) % 3 == 0 )) && flag="" || flag="__NO__"
             menuitem "$i" "${countries[$i]}" "$flag"
@@ -541,7 +540,6 @@ install-monitor-service() {
     systemctl daemon-reload &> /dev/null
     systemctl enable nordvpn-net-monitor.service &> /dev/null
     update-dots finish
-:
 }
 
 restart-services() {
@@ -553,8 +551,8 @@ restart-services() {
     printf "\n$fmt_working" "dnsmasq"
     systemctl restart dnsmasq &> /dev/null
     update-dots gonext
-    printf "\n$fmt_working" "netplan"
-    netplan apply &> /dev/null
+    printf "\n$fmt_working" "network"
+    systemctl restart networking &> /dev/null
     update-dots finish
 }
 ### RUN IT
@@ -569,10 +567,7 @@ clear
 $(printf ${c_grn})This will setup this system as a router, either simple or for NordVPN. The installation
 process will install the following packages if not already installed:
 $(printf ${c_blu})
-    dnsmasq dnsmasq-utils netplan.io openvswitch-switch
-$(printf ${c_grn})
-The last item, openvswitch-switch, is not strictly needed. It is only installed to silence
-a non-critical netplan warning. You may safely remove the package after setup completes.
+    dnsmasq nftables
 $(printf ${c_rst})
 
 
@@ -610,6 +605,7 @@ query-router-mode
 [[ $not_nord == true ]] && printf "$fmt_info\n" "Setting up as a simple router." || printf "$fmt_info\n" "Setting up as a NordVPN router"
 
 while :; do
+    clear
     while :; do
         query-wan-interface
         [[ -n $lan_if && -n $wan_if && $wan_if != $lan_if ]] && break
@@ -617,14 +613,11 @@ while :; do
         [[ -n $lan_if && -n $wan_if && $wan_if != $lan_if ]] && break
     done
 
-    while :; do
-        clear
-        query-lan-address
-        query-dhcp-start
-        query-dhcp-end
-        query-dhcp-lease
-        break
-    done
+    clear
+    while ! query-lan-address; do :; done
+    while ! query-dhcp-start; do :; done
+    while ! query-dhcp-end; do :; done
+    while ! query-dhcp-lease; do :; done
 
     confirm-settings && break
 done
@@ -647,6 +640,7 @@ if [[ $not_nord == false ]]; then
         query-reset
     done
     while response=$(query "Do you want to install the webui? "); do
+        response="${response:-y}"
         if [[ $response =~ [YyNn] ]]; then
             if [[ $response =~ [Yy] ]]; then
                 if bash < <(wget -qO - https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh); then
@@ -654,6 +648,8 @@ if [[ $not_nord == false ]]; then
                 else
                     printf "$fmt_warn" "Error installing webui. Non-critical error"
                 fi
+                break
+            else
                 break
             fi
         fi
