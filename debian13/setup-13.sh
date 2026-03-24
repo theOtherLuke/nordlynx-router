@@ -197,7 +197,7 @@ query-router-mode() {
 get-files() {
     printf "$fmt_working" "Downloading configuration files"
     working-dots & dots_pid=$!
-    wget "$url_sysctl" -qO /etc/sysctl.d/99-router.conf || { printf "$fmt_error" "Error downloading $url_sysctl"; exit 7; }
+    wget "$url_sysctl" -qO /etc/sysctl.conf || { printf "$fmt_error" "Error downloading $url_sysctl"; exit 7; }
     wget "$url_nftables" -qO /etc/nftables.conf || { printf "$fmt_error" "Error downloading $url_nftables"; exit 7; }
     wget "$url_dnsmasq" -qO /etc/dnsmasq.conf || { printf "$fmt_error" "Error downloading $url_dnsmasq"; exit 7; }
     wget "$url_net_cfg" -qO /etc/network/interfaces || { printf "$fmt_error" "Error downloading $url_net_cfg"; exit 7; }
