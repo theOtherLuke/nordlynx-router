@@ -12,7 +12,8 @@ c_wht='\e[1;37m'
 c_rst='\e[0m'
 
 ### VARIABLES
-url_sysctl="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/99-router.conf"
+url_sysctl="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/sysctl.conf"
+url_sysctl_service="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/load-sysctl.service"
 url_nftables="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/nftables.conf"
 url_dnsmasq="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/dnsmasq.conf"
 url_net_cfg="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/config-files/interfaces"
@@ -200,6 +201,7 @@ get-files() {
     wget "$url_nftables" -qO /etc/nftables.conf || { printf "$fmt_error" "Error downloading $url_nftables"; exit 7; }
     wget "$url_dnsmasq" -qO /etc/dnsmasq.conf || { printf "$fmt_error" "Error downloading $url_dnsmasq"; exit 7; }
     wget "$url_net_cfg" -qO /etc/network/interfaces || { printf "$fmt_error" "Error downloading $url_net_cfg"; exit 7; }
+    wget "$url_sysctl_service" -qO /etc/systemd/system/load-sysctl.service || { printf "$fmt_error" "Error downloading $url_sysctl_service"; exit 7; }
     update-dots finish
 }
 
@@ -319,7 +321,7 @@ query-dhcp-lease() {
 }
 
 confirm-settings() {
-    cat <<EOF >&2
+    /usr/bin/cat <<EOF >&2
 WAN Interface    : ${wan_if}
 LAN Interface    : ${lan_if}
 LAN ipv4 Address : ${lan_ip}
@@ -553,6 +555,9 @@ restart-services() {
     update-dots gonext
     printf "\n$fmt_working" "network"
     systemctl restart networking &> /dev/null
+    update-dots gonext
+    printf "\n$fmt_working" "sysctl loader"
+    systemctl enable --naw load-sysctl.service &> /dev/null
     update-dots finish
 }
 ### RUN IT
