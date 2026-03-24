@@ -20,7 +20,7 @@ apt install dnsmasq nftables -y
 sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)
 ```
 
-#### Configure network interfaces
+### Configure network interfaces
 I may still use `netplan` for it's modular nature. For now I'm testing with the default networking.
 
 `/etc/network/interfaces`
@@ -42,7 +42,7 @@ Remember, we don't need to set gateway or nameservers here. They are configured 
 systemctl restart networking
 ```
 
-#### Enable ipv4 forwarding
+### Enable ipv4 forwarding
 Many sources suggest putting this in `/etc/sysctl.d/99-ipforward` instead.
 
 `/etc/sysct.conf`
@@ -75,74 +75,118 @@ net.ipv4.tcp_syncookies = 1
 ```
 As you can see, it loads `/etc/sysctl.conf` last anyways, so either way should work.
 
-#### Configure `nftables`
+Unfortunately, Debian 13 doesn't load `/etc/sysctl.conf` correctly in an unprivileged containers. There is a simple fix though: run a one-shot service on boot.
+
+```bash
+nano /etc/systemd/system/load-sysctl.service
+```
+Add the contents:
+```ini
+[Unit]
+Description=Load sysctl settings from /etc/sysctl.conf
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/sysctl -f /etc/sysctl.conf
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+enable the service
+```bash
+systemctl daemon-reload
+systemctl enable load-sysctl.service
+```
+and run it to ensure it works
+```bash
+systemctl start load-sysctl.service
+```
+
+
+### Configure `nftables`
 Change the LAN interface name for yours. WAN interface is not required to be configured for this. In fact, leaving it unconfigured creates a natural killswitch for LAN traffic if Nord goes down. I'm sure you could optionally configure it to allow traffic forwarding to WAN if Nord is down.
 
 `/etc/nftables.conf`
-```pgsql
+```
 #!/usr/sbin/nft -f
 
-# Declare variables
-define LAN_NET = __LAN_NET__/24
+# VARIABLES
 define LAN_IF = __LAN_IF__
+#define WAN_IF = __WAN_IF__
 define WAN_IF = nordlynx
 
 flush ruleset
 
-table inet filter {
+# MANGLE (connmark)
+table ip mangle {
+    chain prerouting {
+        type filter hook prerouting priority mangle; policy accept;
+
+        iifname $LAN_IF ct mark set 0xe1f1 comment "nord-router"
+    }
+}
+
+# FILTER (forwarding)
+table ip filter {
     chain input {
-        type filter hook input priority 0;
+        type filter hook input priority filter; policy drop;
+
+        # Allow loopback
+        iifname "lo" accept
+
+        # Allow established/related
+        ct state established,related accept
+
+        # Allow SSH on eth1 only
+        iifname $LAN_IF tcp dport 22 accept
+
+        # DHCP (server on eth1)
+        iifname $LAN_IF udp sport 68 udp dport 67 accept
+        iifname $LAN_IF udp sport 67 udp dport 68 accept
     }
 
     chain forward {
-        type filter hook forward priority 0;
+        type filter hook forward priority filter; policy drop;
+
+        # Allow established/related return traffic
+#        iifname $LAN_IF oifname WAN_IF ct state established,related accept
+        iifname $WAN_IF oifname $LAN_IF ct state established,related accept
+
+        # Allow outbound forwarding from eth1 → nordlynx
+        iifname $LAN_IF oifname $WAN_IF accept
     }
 
     chain output {
-        type filter hook output priority 0;
+        type filter hook output priority filter; policy accept;
     }
 }
 
-table inet nat {
-    chain prerouting {
-        type nat hook prerouting priority -100;
-    }
-
+# NAT (masquerade)
+table ip nat {
     chain postrouting {
-        type nat hook postrouting priority 100;
-    }
-}
+        type nat hook postrouting priority srcnat; policy accept;
 
-# Mark traffic coming from the LAN interface
-table ip mangle {
-    chain forward {
-        iifname $LAN_IF ip saddr $LAN_NET mark set 0xe1f1
-    }
-}
-
-# Allow traffic from the LAN network to the WAN network
-table inet filter {
-    chain forward {
-        icmp type echo-request accept
-        ip protocol tcp ct state new,established,related accept
-        ip protocol udp ct state new,established,related accept
-        iifname $LAN_IF oifname $WAN_IF accept
-    }
-}
-
-# Masquerade outgoing traffic from the LAN network
-table inet nat {
-    chain postrouting {
-        ip saddr $LAN_NET oifname $WAN_IF masquerade
+        oifname $WAN_IF masquerade
     }
 }
 ```
 ...and reload.
 ```bash
 systemctl restart nftables
+
+# or
+
+nft -f /etc/nftables.conf
+
+# or alternatively...
+# make it executable and run it
+chmod +x /etc/nftables.conf
+/etc/nftables.conf
 ```
 
-#### Configure dhcp server
+### Configure dhcp server
 
 `/etc/dnsmasq.conf`
 ``` bash
