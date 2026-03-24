@@ -1,0 +1,11 @@
+[Unit]
+Description=Load sysctl settings from /etc/sysctl.conf
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/sysctl -f /etc/sysctl.conf
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
