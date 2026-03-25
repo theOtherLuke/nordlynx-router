@@ -209,14 +209,16 @@ get-files() {
 
 write-files() {
     printf "$fmt_working" "Writing configuration files"
+    [[ $not_nord == false ]] && wan_if_fw="nordlynx" || wan_if_fw="$wan_if"
     working-dots & dots_pid=$!
     sed -i "s/__LAN_IF__/$lan_if/g" /etc/network/interfaces
     sed -i "s/__LAN_IP__/$lan_ip/g" /etc/network/interfaces
     sed -i "s/__WAN_IF__/$wan_if/g" /etc/network/interfaces
     sed -i "s/__LAN_IF__/$lan_if/g" /etc/nftables.conf
     sed -i "s|__LAN_NET__|$(get-subnet "$lan_ip").0|g" /etc/nftables.conf
-    sed -i "s/__WAN_IF__/$wan_if/g" /etc/nftables.conf
+    sed -i "s/__WAN_IF__/$wan_if_fw/g" /etc/nftables.conf
     sed -i "s/__LAN_IF__/$lan_if/g" /etc/dnsmasq.conf
+    sed -i "s/__WAN_IF__/$wan_if/g" /etc/dnsmasq.conf
     sed -i "s/__DHCP_NETMASK__/255.255.255.0/g" /etc/dnsmasq.conf
     sed -i "s/__DHCP_START__/$dhcp_start/g" /etc/dnsmasq.conf
     sed -i "s/__DHCP_END__/$dhcp_end/g" /etc/dnsmasq.conf
@@ -680,7 +682,6 @@ while :; do
 done
 
 get-files
-[[ $not_nord == false ]] && wan_if="nordlynx"
 write-files
 if [[ $not_nord == false ]]; then
     perform-nord-installation || { printf "$fmt_error" "Error installing NordVPN application."; exit 5; }
