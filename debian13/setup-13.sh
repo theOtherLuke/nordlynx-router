@@ -345,7 +345,7 @@ query-dns-address() {
         printf "${c_grn}" "Validating DNS server(s)"
         working-dots & dots_pid=$!
         for n in "${ns1[@]}"; do
-            if dig @"$ip" example.com +time=1 +tries=1 +short 2>/dev/null | grep -Eq '^[0-9.]+'; then
+            if dig @"$n" example.com +time=1 +tries=1 +short 2>/dev/null | grep -Eq '^[0-9.]+'; then
                 ns["$n"]="valid"
             else
                 ns["$n"]="invalid"
