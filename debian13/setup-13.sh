@@ -31,6 +31,7 @@ fmt_working="\e[10C${c_grn} %s${c_rst}\e[s"
 fmt_warn="${c_yel}  %s${c_rst}\n"
 fmt_error="${c_red}  %s${c_rst}\n"
 fmt_stat_icon="\e[u\r [ %-3s ] \e[u"
+fmt_dns="${c_blu} %-12s - %s${c_rst}\n"
 menu_col_width=25
 
 ### USER PROVIDED
@@ -44,6 +45,7 @@ subnet=
 dhcp_start=
 dhcp_end=
 dhcp_lease=
+nameserver=
 nord_country=
 nord_group=
 nord_options=
@@ -220,7 +222,7 @@ write-files() {
     sed -i "s/__DHCP_END__/$dhcp_end/g" /etc/dnsmasq.conf
     sed -i "s/__DHCP_LEASE__/$dhcp_lease/g" /etc/dnsmasq.conf
     sed -i "s/__GATEWAY__/$lan_ip/g" /etc/dnsmasq.conf
-    sed -i "s/__DNS_SERVERS__/$lan_ip/g" /etc/dnsmasq.conf
+    sed -i "s/__DNS_SERVERS__/$nameserver/g" /etc/dnsmasq.conf
     update-dots finish
 }
 
@@ -320,11 +322,51 @@ query-dhcp-lease() {
     done
 }
 
+query-dns-address() {
+    while response=$(query "Do you want to specify DNS server(s)? (default: ${lan_ip}) [n|N] "); do
+        response="${response:-n}"
+        if [[ $response =~ [YyNn] ]]; then
+            case "${response,,}" in
+                y) break ;;
+                n)
+                    nameserver="$lan_ip"
+                    return
+                    ;;
+            esac
+        fi
+    done
+    local err=false
+    local -A ns
+    while nameserver=$(query "Enter an ipv4 address for the LAN interface (comma separated for multiple) : "); do
+        local -a ns1
+        IFS="," read -ra ns1 <<< "$nameserver"
+        for n in "${ns1[@]}"; do
+            if dig @"$n" -time=2 +noall +answer example.com >/dev/null; then
+                ns[$n]="valid"
+            else
+                ns[$n]="invalid"
+                err=true
+            fi
+            query-reset
+        done
+        printf '\e[J'
+        break
+        if [[ $err == true ]]; then
+            printf "$fmt_menu_header" "DNS Server(s)" >&2
+            for n in "${!ns[@]}"; do
+                printf "$fmt_dns" "$$n" "${ns[$n]}">&2
+            done
+            printf '\e[s'
+        fi
+    done
+}
+
 confirm-settings() {
     /usr/bin/cat <<EOF >&2
 WAN Interface    : ${wan_if}
 LAN Interface    : ${lan_if}
 LAN ipv4 Address : ${lan_ip}
+DNS Server(s)    : ${nameserver}
 DHCP Pool Start  : ${dhcp_start}
 DHCP Pool End    : ${dhcp_end}
 DHCP Lease Time  : ${dhcp_lease}
@@ -627,6 +669,7 @@ while :; do
     confirm-settings && break
 done
 get-files
+[[ $not_nord == false ]] && wan_if="nordlynx"
 write-files
 if [[ $not_nord == false ]]; then
     perform-nord-installation || { printf "$fmt_error" "Error installing NordVPN application."; exit 5; }
