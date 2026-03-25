@@ -20,7 +20,7 @@ url_net_cfg="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs
 url_nord_installer="https://downloads.nordcdn.com/apps/linux/install.sh"
 url_monitor_service="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/monitor-script/install-monitor-service.sh"
 url_webui="https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/webui/setup-webui.sh"
-apt_packages=(dnsmasq nftables)
+apt_packages=(dnsmasq)
 
 ### PRINTF FORMATS
 fmt_menu_header="${c_mag}===== %s =====${c_rst}\n"
