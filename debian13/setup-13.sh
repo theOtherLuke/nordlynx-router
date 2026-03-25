@@ -609,7 +609,7 @@ restart-services() {
     systemctl restart networking &> /dev/null
     update-dots gonext
     printf "\n$fmt_working" "sysctl loader"
-    systemctl enable --naw load-sysctl.service &> /dev/null
+    systemctl enable --now load-sysctl.service &> /dev/null
     update-dots finish
 }
 ### RUN IT
