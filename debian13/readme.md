@@ -7,14 +7,47 @@ My progress slowed recently due to poor internet coverage. I should be finalizin
 
 I  discovered my problem is that Debian 13 seems to not like using iptables for routing. That and it seems setting up ipv4 forwarding is more involved. I believe I have found a solution that uses the default `nftables` instead. This is what I have so far. These details and config options are subject to change as I continue to test. Also, please excuse any of my lysdexic typing.
 
+---
+2026-03-24
+
+I discovered another issue with debian 13: sysctl.conf is not loading. The solution was to create a oneshot service to load it at boot.
+
+I cleaned up the nftables rules and tightened them up a bit.
+
+I cleaned up the install script. Still no pretty whiptail dialogs. I added the option to set DNS server(s) in case some have issue with that. Personally, I have OPNsense point at pihole behind the VPN.
+
+I lost internet connectivity behind NordVPN after updating to 4.5.0 on my debian 12 lxc today. So, today I have switched to debian 13 for my production VPN lxc using this script. Unfortunately, there is a bug running the script like the previous one using `bash < <(...)`. You will need to `wget` or `curl` it and run it locally.
+
+I don't have plans to write any type of migration script to go from debian 12 to 13. This lxc is so fast to create using this script, it wouldn't make sense.
+
+```bash
+wget https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/setup-13.sh
+
+# or
+
+curl https://raw.githubusercontent.com/theOtherLuke/nordlynx-router/refs/heads/main/debian13/setup-13.sh
+
+# and then
+
+chmod +x setup setup-13.sh
+./setup-13.sh
+```
+### Create the container
+	* 1 core
+	* min 128MB RAM
+	* 8GB Storage
+	* 2 NICs - 1 static(LAN), 1 dhcp(WAN)
+
+*You can change the WAN interface to static after setup.*
+
 ### Install requisites
 ```bash
-# ensure your host is up to date
+# ensure your container is up to date
 apt update
 apt upgrade -y
 
-# install dnsmasq, nftables
-apt install dnsmasq nftables -y
+# install dnsmasq
+apt install dnsmasq -y
 
 # install nordvpn cli client
 sh <(wget -qO - https://downloads.nordcdn.com/apps/linux/install.sh)
@@ -43,11 +76,10 @@ systemctl restart networking
 ```
 
 ### Enable ipv4 forwarding
-Many sources suggest putting this in `/etc/sysctl.d/99-ipforward` instead.
 
 `/etc/sysct.conf`
 ```bash
-# /etc/sysctl.d/99-router.conf
+# /etc/sysctl.conf
 net.ipv4.ip_forward = 1
 net.ipv4.conf.all.rp_filter = 1
 net.ipv4.conf.all.send_redirects = 0
@@ -55,25 +87,17 @@ net.ipv4.tcp_syncookies = 1
 ```
 #### Load the new `/etc/sysctl.conf`
 ```
-sysctl --system
+sysctl -f /etc/sysctl.conf
 ```
 You should see the newly added configuration options at the bottom.
 ```bash
-$ sysctl --system
-* Applying /usr/lib/sysctl.d/10-coredump-debian.conf ...
-* Applying /usr/lib/sysctl.d/50-default.conf ...
-* Applying /usr/lib/sysctl.d/50-pid-max.conf ...
-* Applying /etc/sysctl.d/99-ipforward.conf ...
-* Applying /etc/sysctl.d/99-rpfilter.conf ...
-* Applying /etc/sysctl.conf ...
-...
+$ sysctl -f /etc/sysctl.conf
 ...
 net.ipv4.ip_forward = 1
 net.ipv4.conf.all.rp_filter = 1
 net.ipv4.conf.all.send_redirects = 0
 net.ipv4.tcp_syncookies = 1
 ```
-As you can see, it loads `/etc/sysctl.conf` last anyways, so either way should work.
 
 Unfortunately, Debian 13 doesn't load `/etc/sysctl.conf` correctly in an unprivileged containers. There is a simple fix though: run a one-shot service on boot.
 
@@ -106,7 +130,7 @@ systemctl start load-sysctl.service
 
 
 ### Configure `nftables`
-Change the LAN interface name for yours. WAN interface is not required to be configured for this. In fact, leaving it unconfigured creates a natural killswitch for LAN traffic if Nord goes down. I'm sure you could optionally configure it to allow traffic forwarding to WAN if Nord is down.
+Change the LAN interface name for yours. WAN interface should be configured as `nordlynx`.
 
 `/etc/nftables.conf`
 ```
@@ -206,16 +230,18 @@ dhcp-range=__DHCP_START__,__DHCP_END__,__DHCP_LEASE__
 #      wan net = 172.16.20.0/24
 #      lan net = 192.168.200.0/24
 #      local dns server = 172.16.20.55
-# dhcp_option=6,172.16.20.55 #<-- this works without additional configuration
+# Comma-separated list of dns servers
+# dhcp_option=6,172.16.20.55
 dhcp-option=6,__NAMESERVERS__
 
-# gateway - this is the static ip of the lan interface
-dhcp-option=3,__GATEWAY__
+# gateway - this will be the static ip of the lan interface by default.
+# Only change this if you require something else.
+#dhcp-option=3,__GATEWAY__
 
 # dhcp cache size
 cache-size=1000
 ```
-## My latest iteration
-I have moved my router to a Minisforum MS-01 12900H. I would have preferred the MS-A2 9955HX for its homogeneous cores, but I couldn't justify the price for way more power than I will ever need for this router. Plus, Plex likes the intel quick-assist. With OPNsense fully provisioned, I still have way more than enough headroom to virtualize a ddns updater, pihole, nord router, docker, and even a plex server with room to spare.
+## My latest hardware iteration
+I have moved my router to a Minisforum MS-01 12900H. I would have preferred the MS-A2 9955HX for its homogeneous cores, but I couldn't justify the price for way more power than I will ever need for this host. Plus, Plex likes the intel quick-assist. With OPNsense fully provisioned, I still have way more than enough headroom to virtualize a ddns updater, pihole, nord router, docker, and even a plex server with room to spare.
 
-I pass the i226-V(not the i226-LM) directly to OPNsense as the WAN. Then, I create 3 virtual bridges in Proxmox: LAN(vmbr0 - connected to a 10gb SFP port), DMZ(vmbr1), VPN(vmbr2). My pihole lives in the DMZ. The Nord router lives between DMZ(WAN-side) and VPN(LAN-side). Firewall filter and nat rules direct internet traffic from LAN through the VPN interface. LAN can access DMZ, but not the other way around. VPN is configured as a gateway. I also configure all interface addresses in OPNsense as static outside their respective dhcp ranges, except WAN, to prevent slow booting if nord isn't quite up yet. So far this seems to work pretty well. One could easily implement vlans with this setup as well.
+I pass the i226-V(not the i226-LM) directly to OPNsense as the WAN. Then, I create 3 virtual bridges in Proxmox: LAN(vmbr0 - connected to a 10gb SFP port), DMZ(vmbr1), VPN(vmbr2). My pihole lives in the DMZ. The Nord router lives between DMZ(WAN-side) and VPN(LAN-side). Firewall filter and nat rules direct internet traffic from LAN through the VPN interface. LAN can access DMZ, but not the other way around. VPN is configured as a gateway. I also configure all interface addresses in OPNsense as static, except WAN, to prevent slow booting if nord isn't quite up yet. So far this seems to work pretty well. One could easily implement vlans with this setup as well.
