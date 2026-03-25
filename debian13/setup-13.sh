@@ -323,7 +323,7 @@ query-dhcp-lease() {
 }
 
 query-dns-address() {
-    while response=$(query "Do you want to specify DNS server(s)? (default: ${lan_ip}) [n|N] "); do
+    while response=$(query "Do you want to specify DNS server(s)? (default: ${lan_ip}) [y|N] "); do
         response="${response:-n}"
         if [[ $response =~ [YyNn] ]]; then
             case "${response,,}" in
@@ -335,28 +335,38 @@ query-dns-address() {
             esac
         fi
     done
-    local err=false
-    local -A ns
+    printf '\e[s'
     while nameserver=$(query "Enter an ipv4 address for the LAN interface (comma separated for multiple) : "); do
-        local -a ns1
+        local bad_ns=false
+        local -A ns=()
+        local -a ns1=()
+        [[ $nameserver == "" ]] && { printf '\e[u'; continue; }
         IFS="," read -ra ns1 <<< "$nameserver"
+        printf "${c_grn}" "Validating DNS server(s)"
+        working-dots & dots_pid=$!
         for n in "${ns1[@]}"; do
-            if dig @"$n" -time=2 +noall +answer example.com >/dev/null; then
-                ns[$n]="valid"
+            if dig @"$ip" example.com +time=1 +tries=1 +short 2>/dev/null | grep -Eq '^[0-9.]+'; then
+                ns["$n"]="valid"
             else
-                ns[$n]="invalid"
-                err=true
+                ns["$n"]="invalid"
+                bad_ns=true
             fi
             query-reset
         done
-        printf '\e[J'
-        break
-        if [[ $err == true ]]; then
+        update-dots finish
+        printf '\e[A\e[J\e[s'
+        if [[ $bad_ns == true ]]; then
             printf "$fmt_menu_header" "DNS Server(s)" >&2
             for n in "${!ns[@]}"; do
-                printf "$fmt_dns" "$$n" "${ns[$n]}">&2
+                [[ ${ns[$n]} == "invalid" ]] && c_stat=${c_red} || c_stat=${c_grn}
+                printf "${c_blu}%-15s - ${c_stat}%s${c_rst}\n" "$n" "${ns[$n]}" >&2
             done
-            printf '\e[s'
+            printf "${c_cyn} %s${c_blu}" "Pleas enter valid DNS server(s). Press [enter] to continue..." >&2
+            read -r answer
+            printf '\e[u\e[2A\e[J'
+        else
+            printf '\e[J\e[s'
+            break
         fi
     done
 }
@@ -665,9 +675,10 @@ while :; do
     while ! query-dhcp-start; do :; done
     while ! query-dhcp-end; do :; done
     while ! query-dhcp-lease; do :; done
-
+    while ! query-dns-address; do :; done
     confirm-settings && break
 done
+
 get-files
 [[ $not_nord == false ]] && wan_if="nordlynx"
 write-files
