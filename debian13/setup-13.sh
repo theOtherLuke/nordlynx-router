@@ -225,6 +225,10 @@ write-files() {
     sed -i "s/__DHCP_LEASE__/$dhcp_lease/g" /etc/dnsmasq.conf
     sed -i "s/__GATEWAY__/$lan_ip/g" /etc/dnsmasq.conf
     sed -i "s/__DNS_SERVERS__/$nameserver/g" /etc/dnsmasq.conf
+    cat <<\EOF >> /root/.bashrc
+source /root/connect-nord.conf
+alias nord-connect='nordvpn c $connect_options'
+EOF
     update-dots finish
 }
 
@@ -720,6 +724,8 @@ fi
 restart-services
 
 printf "$fmt_info" "Router setup complete!"
+printf "$fmt_info" "You can connect/reconnect using 'nord-connect'."
+printf "$fmt_info" "Connect options may be modified by editing /root/connect-nord.conf"
 
 query "Press [enter] to reboot..."
 
